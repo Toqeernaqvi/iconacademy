@@ -15,7 +15,7 @@ export const academy = {
 
 export const socialLinks = [
   { label: 'YouTube', href: 'https://www.youtube.com/@iconacademylahore', color: 'red' },
-  { label: 'Instagram', href: 'https://www.instagram.com/iconacademy', color: 'pink' },
+  { label: 'Instagram', href: 'http://instagram.com/iconacademyrizwan?utm_source=qr&stkn=NWxrYnF3eDViMDRu', color: 'pink' },
   { label: 'Facebook', href: 'https://www.facebook.com/iconacademylahore', color: 'blue' },
   { label: 'TikTok', href: 'https://www.tiktok.com/@iconacademylahore', color: 'ink' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/company/code-with-naqvi/', color: 'sky' },
