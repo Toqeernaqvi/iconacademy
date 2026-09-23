@@ -1,24 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
+import SocialIcon from './SocialIcon';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
-  BriefcaseBusiness,
-  Camera,
   CheckCircle2,
-  CirclePlay,
   Code2,
-  Globe2,
   Link as LinkIcon,
-  MapPin,
-  Menu,
-  Music2,
   Sparkles,
-  Users,
   X,
 } from 'lucide-react';
-import { academy, articles, globalPartner, programs, socialLinks } from './content/siteContent';
-import ThemeToggle from './ThemeToggle';
+import { articles, globalPartner, programs, socialLinks } from './content/siteContent';
 
-const socialIcons = { YouTube: CirclePlay, Instagram: Camera, Facebook: Users, TikTok: Music2, LinkedIn: BriefcaseBusiness };
 const categories = ['All stories', ...new Set(articles.map((article) => article.category))];
 
 const getArticleFromPath = () => {
@@ -27,10 +18,21 @@ const getArticleFromPath = () => {
 };
 
 function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All stories');
   const [selectedArticle, setSelectedArticle] = useState(getArticleFromPath);
   const [copied, setCopied] = useState(false);
+  const partnerRef = useRef(null);
+
+  useEffect(() => {
+    const section = partnerRef.current;
+    if (!section || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      section.classList.toggle('is-in-view', entry.isIntersecting);
+      if (entry.isIntersecting) section.classList.add('has-entered');
+    }, { threshold: 0.12 });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   const filteredArticles = useMemo(
     () => activeCategory === 'All stories' ? articles : articles.filter((article) => article.category === activeCategory),
@@ -41,7 +43,6 @@ function App() {
     const handlePopState = () => setSelectedArticle(getArticleFromPath());
     const handleEscape = (event) => {
       if (event.key === 'Escape') {
-        setMenuOpen(false);
         if (selectedArticle) closeArticle();
       }
     };
@@ -54,12 +55,11 @@ function App() {
   }, [selectedArticle]);
 
   useEffect(() => {
-    document.body.style.overflow = selectedArticle || menuOpen ? 'hidden' : '';
+    document.body.style.overflow = selectedArticle ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [selectedArticle, menuOpen]);
+  }, [selectedArticle]);
 
   const scrollTo = (id) => {
-    setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -91,25 +91,6 @@ function App() {
 
   return (
     <div className="home-page-v2">
-      <div className="home-announcement"><span>Admissions & new batches</span><strong>Kids · Matric · Intermediate · Computer Courses</strong><button onClick={() => scrollTo('contact')}>Enquire now <ArrowUpRight size={14} /></button></div>
-
-      <header className="home-header">
-        <a className="course-brand" href="/" aria-label="Icon Academy home"><img src="/images/icon-academy-logo.png" alt="" /><span>The Icon Academy<small>Lahore</small></span></a>
-        <nav className="home-nav" aria-label="Main navigation">
-          <button onClick={() => scrollTo('programs')}>Programs</button>
-          <a href="/our-team">Our team</a>
-          <button onClick={() => scrollTo('partner')}>Career partner</button>
-          <button onClick={() => scrollTo('updates')}>Updates</button>
-          <button onClick={() => scrollTo('journal')}>Journal</button>
-          <button onClick={() => scrollTo('contact')}>Contact</button>
-        </nav>
-        <ThemeToggle />
-        <a className="home-header-cta" href="/computer-courses">Computer courses <ArrowUpRight size={16} /></a>
-        <button className="home-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
-      </header>
-
-      {menuOpen && <div className="home-mobile-menu"><nav><button onClick={() => scrollTo('programs')}>Programs</button><a href="/our-team">Our team <ArrowUpRight size={17} /></a><button onClick={() => scrollTo('partner')}>Career partner</button><button onClick={() => scrollTo('updates')}>Latest updates</button><button onClick={() => scrollTo('journal')}>Journal</button><button onClick={() => scrollTo('contact')}>Contact & location</button><a href="/computer-courses">Computer courses <ArrowUpRight size={17} /></a></nav></div>}
-
       <main>
         <section className="home-hero">
           <div className="course-angle course-angle-blue" /><div className="course-angle course-angle-red" />
@@ -146,9 +127,9 @@ function App() {
 
         <section className="home-course-banner"><div className="section-wrap home-course-banner-grid"><div><p>Professional computer training</p><h2>Six courses. Practical projects. Skills you can use.</h2></div><div className="home-course-list"><span>Full Stack Web Development</span><span>Python Programming</span><span>C++ Programming</span><span>Digital Marketing</span><span>Spoken English</span><span>Video Editing</span></div><a href="/computer-courses">Explore fees & course details <ArrowUpRight size={18} /></a></div></section>
 
-        <section className="home-section home-partner" id="partner">
+        <section className="home-section home-partner" id="partner" ref={partnerRef}>
           <div className="section-wrap home-partner-grid">
-            <div className="home-partner-brand"><Globe2 size={28} /><div className="home-partner-logo"><img src={globalPartner.logo} alt="CWN Solutions" /></div><span>Global career partner</span></div>
+            <div className="home-partner-brand"><div className="home-partner-logo"><img src={globalPartner.logo} alt="CWN Solutions" /></div><span>Global career partner</span></div>
             <div className="home-partner-copy"><p>02 / {globalPartner.eyebrow}</p><h2>From classroom<br />to <em>career.</em></h2><p>{globalPartner.description}</p><p>Through our connection with <strong>{globalPartner.name}</strong>, job-ready web development students can access professional project exposure and career opportunities. Icon Academy students have gone on to land roles with the team.</p><div className="home-partner-points">{globalPartner.highlights.map((item) => <span key={item}><CheckCircle2 size={15} /> {item}</span>)}</div><a href={globalPartner.url} target="_blank" rel="noreferrer">Meet CWN Solutions <ArrowUpRight size={16} /></a></div>
           </div>
         </section>
@@ -156,9 +137,9 @@ function App() {
         <section className="home-section home-connect" id="updates">
           <div className="section-wrap">
             <div className="home-section-heading compact"><div><p>03 / Stay connected</p><h2>Follow the<br /><em>academy.</em></h2></div><span>Lessons, admissions, student work and academy news—wherever you already scroll.</span></div>
-            <div className="home-social-grid">{socialLinks.map(({ label, href }) => { const Icon = socialIcons[label]; return <a href={href} target="_blank" rel="noreferrer" key={label}><Icon size={24} /><strong>{label}</strong><ArrowUpRight size={16} /></a>; })}</div>
+            <div className="home-social-grid">{socialLinks.map(({ label, href }) => { return <a href={href} target="_blank" rel="noreferrer" key={label}><SocialIcon platform={label} size={24} /><strong>{label}</strong><ArrowUpRight size={16} /></a>; })}</div>
             <div className="home-facebook-grid">
-              <div><p className="course-eyebrow"><Users size={15} /> Live Facebook timeline</p><h3>Latest updates,<br />direct from our page.</h3><p>See current course announcements, admissions information and public posts from Icon Academy Lahore.</p><a className="course-button course-button-primary" href={facebookSocial.href} target="_blank" rel="noreferrer">Open Facebook <ArrowUpRight size={16} /></a></div>
+              <div><p className="course-eyebrow"><SocialIcon platform="Facebook" size={15} /> Live Facebook timeline</p><h3>Latest updates,<br />direct from our page.</h3><p>See current course announcements, admissions information and public posts from Icon Academy Lahore.</p><a className="course-button course-button-primary" href={facebookSocial.href} target="_blank" rel="noreferrer">Open Facebook <ArrowUpRight size={16} /></a></div>
               <div className="facebook-feed"><iframe title="Icon Academy Lahore Facebook updates" src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Ficonacademylahore&tabs=timeline&width=500&height=620&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true" width="500" height="620" scrolling="no" frameBorder="0" allowFullScreen loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" /></div>
             </div>
           </div>
@@ -172,12 +153,10 @@ function App() {
           </div>
         </section>
 
-        <section className="home-contact" id="contact">
-          <div className="section-wrap"><div className="home-contact-heading"><p>05 / Admissions & location</p><h2>Take your<br /><em>next step.</em></h2><span>Ask about programs, batch timings and admissions—or get directions to our Lahore campus.</span></div><div className="home-contact-grid"><a href={facebookSocial.href} target="_blank" rel="noreferrer"><Users size={28} /><span><small>Admissions enquiries</small><strong>Message us on Facebook</strong></span><ArrowUpRight size={20} /></a><a href={academy.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={28} /><span><small>Visit the academy</small><strong>{academy.address}</strong></span><ArrowUpRight size={20} /></a></div></div>
-        </section>
+
       </main>
 
-      <footer className="home-footer"><div className="section-wrap home-footer-top"><a className="course-brand" href="/"><img src="/images/icon-academy-logo.png" alt="" /><span>The Icon Academy<small>Lahore</small></span></a><p>Academic learning and practical computer training in Lahore.</p><div>{socialLinks.map(({ label, href }) => { const Icon = socialIcons[label]; return <a href={href} target="_blank" rel="noreferrer" aria-label={label} key={label}><Icon size={17} /></a>; })}</div></div><div className="section-wrap home-footer-bottom"><span>© {new Date().getFullYear()} The Icon Academy</span><span>Learn skills. Build your future.</span><a href={academy.mapsUrl} target="_blank" rel="noreferrer">Google Maps <ArrowUpRight size={13} /></a></div></footer>
+
 
       {selectedArticle && <div className="modal-backdrop" role="presentation" onMouseDown={closeArticle}><article className="article-modal" role="dialog" aria-modal="true" aria-label={selectedArticle.title} onMouseDown={(event) => event.stopPropagation()}><div className="modal-actions"><button aria-label="Share story" onClick={shareArticle}><LinkIcon size={18} /><span>{copied ? 'Copied' : 'Share'}</span></button><button aria-label="Close story" onClick={closeArticle}><X size={20} /></button></div><img src={selectedArticle.image} alt="" /><div className="modal-content"><div className="article-meta"><span>{selectedArticle.category}</span><span>{selectedArticle.date} · {selectedArticle.readTime}</span></div><h2>{selectedArticle.title}</h2><p className="article-lead">{selectedArticle.excerpt}</p>{selectedArticle.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></article></div>}
     </div>

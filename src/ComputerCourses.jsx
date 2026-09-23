@@ -1,10 +1,9 @@
+import SocialIcon from './SocialIcon';
 import {
-  ArrowLeft,
   ArrowUpRight,
   BadgePercent,
   CalendarDays,
   CheckCircle2,
-  CirclePlay,
   Code2,
   FileDown,
   Laptop,
@@ -17,7 +16,6 @@ import {
   TerminalSquare,
 } from 'lucide-react';
 import { academy, computerCourses, courseContacts, globalPartner } from './content/siteContent';
-import ThemeToggle from './ThemeToggle';
 
 const courseIcons = {
   code: Code2,
@@ -31,20 +29,6 @@ const courseIcons = {
 function ComputerCourses() {
   return (
     <div className="courses-page">
-      <header className="course-header">
-        <a className="course-brand" href="/" aria-label="Icon Academy home">
-          <img src="/images/icon-academy-logo.png" alt="" />
-          <span>The Icon Academy<small>Lahore</small></span>
-        </a>
-        <nav aria-label="Computer courses navigation">
-          <a href="#courses">Courses</a>
-          <a href="#why-icon">Why Icon</a>
-          <a href="#course-contact">Contact</a>
-        </nav>
-        <ThemeToggle />
-        <a className="course-back" href="/"><ArrowLeft size={16} /> Main website</a>
-      </header>
-
       <main>
         <section className="course-hero">
           <div className="course-angle course-angle-blue" />
@@ -57,7 +41,7 @@ function ComputerCourses() {
               <div className="course-hero-actions">
                 <a className="course-button course-button-primary" href="#courses">Explore courses <ArrowUpRight size={17} /></a>
                 <a className="course-button course-button-secondary" href="/images/computer-courses-brochure.png" target="_blank" rel="noreferrer">View brochure <FileDown size={17} /></a>
-                <a className="course-button course-button-youtube" href={globalPartner.youtube} target="_blank" rel="noreferrer"><CirclePlay size={17} /> Watch on YouTube</a>
+                <a className="course-button course-button-youtube" href={globalPartner.youtube} target="_blank" rel="noreferrer"><SocialIcon platform="YouTube" size={17} /> Watch on YouTube</a>
               </div>
             </div>
             <div className="course-hero-seal">
@@ -95,7 +79,7 @@ function ComputerCourses() {
 
         <section className="course-youtube-section">
           <a className="section-wrap course-youtube-card" href={globalPartner.youtube} target="_blank" rel="noreferrer">
-            <div className="course-youtube-icon"><CirclePlay size={38} /></div>
+            <div className="course-youtube-icon"><SocialIcon platform="YouTube" size={38} /></div>
             <div><p>Learn beyond the classroom</p><h2>Watch practical coding lessons on Code With Naqvi.</h2><span>Web development, programming concepts and career-focused technology content.</span></div>
             <strong>Visit YouTube <ArrowUpRight size={18} /></strong>
           </a>
@@ -131,7 +115,7 @@ function ComputerCourses() {
         </section>
       </main>
 
-      <footer className="course-footer"><div className="section-wrap"><span>The Icon Academy</span><small>Learn skills. Build your future.</small><a href="/">Back to main website <ArrowUpRight size={15} /></a></div></footer>
+
     </div>
   );
 }

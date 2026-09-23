@@ -10,7 +10,7 @@ export const academy = {
   mapsUrl: 'https://www.google.com/maps/dir//The+Icon+Academy,+Rizwan+Gardens+Lahore,+54850/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x391911001d1fedb5:0xa20fabff3176073?sa=X&ved=1t:57443&ictx=111',
   email: '',
   phone: '',
-  whatsappNumber: '', // International format without +, e.g. 923001234567
+  whatsappNumber: '923090833501', // Admissions: Sir Fida Hussain; international format without +
 };
 
 export const socialLinks = [
@@ -62,6 +62,16 @@ export const programs = [
   },
 ];
 
+// Replace each placeholder path with the teacher’s photo when available.
+export const facultyMembers = [
+  { name: 'Sir Fakhar Abbas', designation: 'Chemistry Teacher', image: '/images/team/teacher-placeholder.svg' },
+  { name: 'Sir Talha', designation: 'Teacher', image: '/images/team/teacher-placeholder.svg' },
+  { name: 'Miss Eman Khan', designation: 'Teacher', image: '/images/team/teacher-placeholder.svg' },
+  { name: 'Miss Eman Fatima', designation: 'Teacher', image: '/images/team/teacher-placeholder.svg' },
+  { name: 'Miss Saliha', designation: 'Teacher', image: '/images/team/teacher-placeholder.svg' },
+  { name: 'Miss Sofia', designation: 'Teacher', image: '/images/team/teacher-placeholder.svg' },
+];
+
 export const teamMembers = [
   {
     name: 'Ali Raza Jafri',
@@ -81,7 +91,9 @@ export const teamMembers = [
     name: 'Fida Hussain Jafri',
     designation: 'Managing Director, Rizwan Garden Campus',
     image: '/images/team/fida-hussain-jafri.jpg',
-    imagePosition: 'center top',
+    imagePosition: 'center 35%',
+    imageScale: 1.12,
+    imageOrigin: 'right center',
     description: 'Oversees campus operations and helps create a focused, supportive and well-managed learning environment.',
   },
 ];
