@@ -11,6 +11,8 @@ const revealTargets = [
   '.course-detail-card', '.course-youtube-card', '.tools-band > *',
   '.why-course-grid > div', '.course-contact-copy', '.course-contact-panel > a',
   '.team-hero-copy > *', '.team-hero-panel', '.team-page-heading', '.home-team-card', '.faculty-card',
+  '.online-hero-copy > *', '.online-showcase', '.online-section-heading', '.online-course-card',
+  '.online-guidance', '.online-school > div', '.online-start li',
   '.team-values-grid > div:first-child', '.team-value-list > span',
   '.team-contact-grid > div:first-child', '.team-contact-grid a',
 ].join(',');

@@ -62,8 +62,13 @@ function ComputerCourses() {
               return (
                 <article className="course-detail-card" key={course.code}>
                   <span className="course-code">{course.code}</span>
-                  <div className="course-icon"><Icon size={30} /></div>
+                  <div className={`course-icon${course.technologies?.length ? ' course-brand-icon' : ''}`}>
+                    {course.technologies?.length ? <img src={course.technologies[0].image} alt={course.technologies[0].name} width="42" height="42" /> : <Icon size={30} />}
+                  </div>
                   <h3>{course.title}</h3>
+                  {course.technologies?.length > 0 && <div className="course-technology-list" aria-label="Course technologies">
+                    {course.technologies.map((technology) => <span key={technology.name}><img src={technology.image} alt="" width="18" height="18" loading="lazy" />{technology.name}</span>)}
+                  </div>}
                   <div className="course-facts">
                     <p><CalendarDays size={16} /><span>Duration</span><strong>{course.duration}</strong></p>
                     <p><BadgePercent size={16} /><span>Regular fee</span><strong>{course.regularFee}</strong></p>
@@ -89,7 +94,7 @@ function ComputerCourses() {
           <div className="section-wrap">
             <div className="tools-band">
               <div><span>Creative tools</span><h2>Design, edit and create with confidence.</h2></div>
-              <div className="tool-pills"><span>Canva</span><span>Adobe XD</span><span>AI tools</span><span>Filmora</span></div>
+              <div className="tool-pills"><span><img src="/images/technologies/canva.svg" alt="" width="24" height="24" loading="lazy" />Canva</span><span><img src="/images/technologies/adobexd.svg" alt="" width="24" height="24" loading="lazy" />Adobe XD</span><span><Sparkles size={24} />AI tools</span><span><img src="/images/technologies/wondersharefilmora.svg" alt="" width="24" height="24" loading="lazy" />Filmora</span></div>
             </div>
             <div className="why-course-grid">
               <div><p className="course-eyebrow"><Sparkles size={15} /> Why choose The Icon Academy?</p><h2>Training designed for the real world.</h2></div>

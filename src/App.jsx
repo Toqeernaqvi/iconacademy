@@ -99,11 +99,11 @@ function App() {
               <p className="course-eyebrow"><Sparkles size={15} /> Academic & professional learning</p>
               <h1>Learn today.<br /><em>Lead tomorrow.</em></h1>
               <p>Strong academic foundations for Kids, Matric and Intermediate students—plus practical computer courses for career-ready skills.</p>
-              <div className="course-hero-actions"><button className="course-button course-button-primary" onClick={() => scrollTo('programs')}>Explore programs <ArrowUpRight size={17} /></button><a className="course-button course-button-secondary" href="/computer-courses">View computer courses <Code2 size={17} /></a></div>
+              <div className="course-hero-actions"><button className="course-button course-button-primary" onClick={() => scrollTo('programs')}>Explore programs <ArrowUpRight size={17} /></button><a className="course-button course-button-secondary" href="/computer-courses">View computer courses <Code2 size={17} /></a><a className="course-button course-button-secondary" href="/online-tutoring">Online tutoring <ArrowUpRight size={17} /></a></div>
               <div className="home-hero-points"><span><CheckCircle2 size={15} /> Guided learning</span><span><CheckCircle2 size={15} /> Practical skills</span><span><CheckCircle2 size={15} /> Career pathways</span></div>
             </div>
             <div className="home-hero-visual">
-              <div className="home-photo-frame"><img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=88" alt="Students learning together" /><div className="home-photo-label"><strong>Learn skills.</strong><span>Build your future.</span></div></div>
+              <div className="home-photo-frame"><img src="/images/pakistani-students-hero.jpg" alt="Illustrative scene of Pakistani students learning together at a laptop" width="1254" height="1254" fetchPriority="high" /><div className="home-photo-label"><strong>Learn skills.</strong><span>Build your future.</span></div></div>
               <div className="home-logo-medallion"><img src="/images/icon-academy-logo.png" alt="The Icon Academy crest" /></div>
             </div>
           </div>

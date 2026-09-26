@@ -106,6 +106,9 @@ export const computerCourses = [
     regularFee: 'Rs. 10,000 / month',
     discountedFee: 'Rs. 5,000 / month',
     icon: 'code',
+    category: 'Development',
+    description: 'Turn ideas into complete websites, from your first page to full-stack projects.',
+    technologies: [{ name: 'React', image: '/images/technologies/react.svg' }, { name: 'HTML', image: '/images/technologies/html5.svg' }, { name: 'CSS', image: '/images/technologies/css.svg' }, { name: 'JavaScript', image: '/images/technologies/javascript.svg' }],
     topics: ['HTML, CSS & JavaScript', 'Bootstrap / Tailwind CSS', 'React.js', 'Databases & MySQL', 'PHP / Laravel', 'Full-stack projects'],
   },
   {
@@ -115,6 +118,9 @@ export const computerCourses = [
     regularFee: 'Rs. 30,000',
     discountedFee: 'Rs. 5,000 / month',
     icon: 'python',
+    category: 'Development',
+    description: 'Start coding with clear fundamentals and bring your logic to life with mini projects.',
+    technologies: [{ name: 'Python', image: '/images/technologies/python.svg' }],
     topics: ['Python basics', 'Logic building', 'Functions', 'File handling', 'Mini projects'],
   },
   {
@@ -124,6 +130,9 @@ export const computerCourses = [
     regularFee: 'Rs. 30,000',
     discountedFee: 'Rs. 5,000 / month',
     icon: 'cpp',
+    category: 'Development',
+    description: 'Build a strong programming foundation, one problem and one solution at a time.',
+    technologies: [{ name: 'C++', image: '/images/technologies/cplusplus.svg' }],
     topics: ['Programming basics', 'Loops', 'Arrays', 'Functions', 'OOP fundamentals'],
   },
   {
@@ -133,6 +142,9 @@ export const computerCourses = [
     regularFee: 'Rs. 30,000',
     discountedFee: 'Rs. 5,000 / month',
     icon: 'marketing',
+    category: 'Marketing',
+    description: 'Learn how brands reach people through search, social media and digital campaigns.',
+    technologies: [{ name: 'Google Ads', image: '/images/technologies/googleads.svg' }],
     topics: ['Social media marketing', 'SEO basics', 'Content strategy', 'Ads basics', 'Branding'],
   },
   {
@@ -142,6 +154,8 @@ export const computerCourses = [
     regularFee: 'Rs. 30,000',
     discountedFee: 'Rs. 5,000 / month',
     icon: 'spoken',
+    category: 'Communication',
+    description: 'Find your voice with conversation practice, pronunciation and everyday English.',
     topics: ['Conversation practice', 'Vocabulary', 'Pronunciation', 'Confidence building', 'Interview speaking'],
   },
   {
@@ -151,9 +165,31 @@ export const computerCourses = [
     regularFee: 'Rs. 30,000',
     discountedFee: 'Rs. 5,000 / month',
     icon: 'video',
+    category: 'Creative',
+    description: 'Turn raw footage into engaging stories with editing, titles and creative tools.',
+    technologies: [{ name: 'Filmora', image: '/images/technologies/wondersharefilmora.svg' }],
     topics: ['Filmora', 'AI tools', 'Cutting', 'Transitions', 'Titles', 'Social media editing'],
   },
 ];
+
+export const onlineTutoring = {
+  eyebrow: 'The Icon Academy · Online learning',
+  title: 'Learn a skill.',
+  titleAccent: 'Create your next chapter.',
+  description: 'Code your first website, explore digital marketing or find your creative voice. Build practical skills from home with online courses at The Icon Academy.',
+  classes: [
+    { title: 'Primary classes', detail: 'Class 1–5', description: 'Build strong foundations in English, Mathematics, Science and everyday learning.' },
+    { title: 'Middle classes', detail: 'Class 6–8', description: 'Strengthen subject concepts, work through questions and get support with school learning.' },
+    { title: 'Matric', detail: 'Class 9–10', description: 'Focused subject guidance, revision and preparation for board examinations.' },
+    { title: 'Intermediate', detail: 'Class 11–12', description: 'Online subject support for first-year and second-year students, from concepts to exam preparation.' },
+    { title: 'Other classes & higher studies', detail: 'Tell us what you are studying', description: 'Share your class, subject and syllabus so we can discuss suitable online teaching support.' },
+  ],
+  steps: [
+    { title: 'Tell us your learning goal', description: 'Send your class, subjects or preferred course on WhatsApp, along with your current level.' },
+    { title: 'Discuss your classes', description: 'Confirm the syllabus, teacher availability, online class timings and fees with our team.' },
+    { title: 'Start learning online', description: 'Our team will share joining details and guide you through what you need for your lessons.' },
+  ],
+};
 
 export const courseContacts = [
   { name: 'Syed Toqeer Abbas', qualification: 'Computer Courses Instructor', phone: '0307-8875229', whatsapp: '923078875229' },
@@ -205,4 +241,29 @@ export const articles = [
       'Use the Facebook feed on this website or visit the page directly to check the latest information before enrolling.',
     ],
   },
+];
+
+// Illustrative content only: replace with permission-cleared student feedback.
+// Set isSample to false only after replacing the name, quote and rating with a real review.
+export const testimonials = [
+  { id: 'review-01', name: 'Sample learner 01', course: 'Full Stack Web Development', rating: 5, quote: 'Building a page step by step helped HTML and CSS make sense to me.', isSample: true },
+  { id: 'review-02', name: 'Sample learner 02', course: 'Python Programming Foundation', rating: 4.5, quote: 'The small exercises helped me get more comfortable with programming logic.', isSample: true },
+  { id: 'review-03', name: 'Sample learner 03', course: 'Digital Marketing', rating: 5, quote: 'I enjoyed connecting content ideas with the audience a brand wants to reach.', isSample: true },
+  { id: 'review-04', name: 'Sample learner 04', course: 'Spoken English', rating: 4.5, quote: 'Conversation practice gave me a reason to speak English more regularly.', isSample: true },
+  { id: 'review-05', name: 'Sample learner 05', course: 'Video Editing', rating: 5, quote: 'Working with cuts and titles helped me turn separate clips into a story.', isSample: true },
+  { id: 'review-06', name: 'Sample learner 06', course: 'C++ Programming Foundation', rating: 4.5, quote: 'Breaking problems into smaller steps made loops and functions easier to follow.', isSample: true },
+  { id: 'review-07', name: 'Sample learner 07', course: 'Full Stack Web Development', rating: 5, quote: 'I liked seeing how the layout, styling and JavaScript fit together in a project.', isSample: true },
+  { id: 'review-08', name: 'Sample learner 08', course: 'Python Programming Foundation', rating: 5, quote: 'Writing my own functions was a useful step beyond copying code examples.', isSample: true },
+  { id: 'review-09', name: 'Sample learner 09', course: 'Digital Marketing', rating: 4.5, quote: 'The content strategy topics helped me organise ideas for a social media page.', isSample: true },
+  { id: 'review-10', name: 'Sample learner 10', course: 'Video Editing', rating: 5, quote: 'Practising transitions helped me understand when a simple edit works best.', isSample: true },
+  { id: 'review-11', name: 'Sample learner 11', course: 'Spoken English', rating: 5, quote: 'Everyday speaking topics made vocabulary practice feel useful and approachable.', isSample: true },
+  { id: 'review-12', name: 'Sample learner 12', course: 'C++ Programming Foundation', rating: 4.5, quote: 'Array exercises helped me understand how to work with a collection of values.', isSample: true },
+  { id: 'review-13', name: 'Sample learner 13', course: 'Full Stack Web Development', rating: 4.5, quote: 'Learning about databases helped me see what happens behind a website.', isSample: true },
+  { id: 'review-14', name: 'Sample learner 14', course: 'Python Programming Foundation', rating: 5, quote: 'Mini projects gave me a way to practise several concepts together.', isSample: true },
+  { id: 'review-15', name: 'Sample learner 15', course: 'Digital Marketing', rating: 5, quote: 'SEO basics helped me think more carefully about how people discover content.', isSample: true },
+  { id: 'review-16', name: 'Sample learner 16', course: 'Video Editing', rating: 4.5, quote: 'I enjoyed experimenting with titles and pacing for short social media videos.', isSample: true },
+  { id: 'review-17', name: 'Sample learner 17', course: 'Spoken English', rating: 4.5, quote: 'Pronunciation practice helped me notice sounds I used to rush through.', isSample: true },
+  { id: 'review-18', name: 'Sample learner 18', course: 'C++ Programming Foundation', rating: 5, quote: 'The introduction to objects gave me a new way to organise a program.', isSample: true },
+  { id: 'review-19', name: 'Sample learner 19', course: 'Full Stack Web Development', rating: 5, quote: 'React practice helped me understand how reusable components make a page easier to build.', isSample: true },
+  { id: 'review-20', name: 'Sample learner 20', course: 'Python Programming Foundation', rating: 4.5, quote: 'File handling exercises showed me how a program can save and reuse information.', isSample: true },
 ];

@@ -32,6 +32,10 @@ The official campus address and Google Maps directions URL are stored in the `ac
 
 The original brochure is stored at `public/images/computer-courses-brochure.png` and is linked from the course page.
 
+## Online tutoring page
+
+The online teaching page is available at `/online-tutoring`, with links in the homepage, desktop/mobile navigation and footer. Edit `onlineTutoring` in `src/content/siteContent.js` to update its introduction, class groups and joining steps. Online course titles, descriptions, categories, logos and topics use the existing `computerCourses` list. The online page leads with courses; category buttons filter the catalogue, and school tutoring appears below it. Enquiries go to `academy.whatsappNumber`; online fees and timings are confirmed through WhatsApp.
+
 ## Publish a blog or news item
 
 1. Open `src/content/siteContent.js`.
@@ -51,3 +55,9 @@ Once the GitHub repository is connected to Vercel, every push triggers a new dep
 ## Optional next step
 
 When non-technical staff need to publish without editing code, connect a Git-based CMS such as Decap CMS or move the content to a hosted CMS. The current setup intentionally stays backend-free and simple.
+
+## Review slider
+
+`src/Testimonials.jsx` displays only `testimonials` entries with `isSample: false`. Replace sample entries with authentic feedback before changing this flag. The section stays hidden when no real entries are present. The slider supports touch scrolling, arrow buttons and keyboard arrows.
+
+For YouTube feedback, preserve the public author name and actual comment, use `rating: null`, and add `sourceLabel: 'YouTube comment'` and a `sourceUrl` pointing to the original comment. Do not invent star ratings or describe channel viewers as academy students without evidence.
