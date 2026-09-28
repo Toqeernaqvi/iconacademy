@@ -35,6 +35,7 @@ export const programs = [
   {
     number: '01',
     title: 'Kids',
+    href: '/kids',
     description: 'Supportive learning that helps young students build strong concepts, confidence and better study habits.',
     tags: ['Concept building', 'Core skills', 'Confidence'],
     accent: 'yellow',
@@ -42,6 +43,7 @@ export const programs = [
   {
     number: '02',
     title: 'Matric',
+    href: '/matric',
     description: 'Focused academic preparation for 9th and 10th class students with guidance for board examinations.',
     tags: ['9th class', '10th class', 'Board preparation'],
     accent: 'coral',
@@ -49,6 +51,7 @@ export const programs = [
   {
     number: '03',
     title: 'Intermediate',
+    href: '/intermediate',
     description: 'Structured learning support for first-year and second-year students preparing for their next academic step.',
     tags: ['1st year', '2nd year', 'Exam preparation'],
     accent: 'mint',
@@ -56,6 +59,7 @@ export const programs = [
   {
     number: '04',
     title: 'Computer Courses',
+    href: '/computer-courses',
     description: 'Professional and practical computer training that turns digital knowledge into useful, career-ready skills.',
     tags: ['Digital skills', 'Professional tools', 'Practical training'],
     accent: 'blue',
@@ -267,3 +271,40 @@ export const testimonials = [
   { id: 'review-19', name: 'Sample learner 19', course: 'Full Stack Web Development', rating: 5, quote: 'React practice helped me understand how reusable components make a page easier to build.', isSample: true },
   { id: 'review-20', name: 'Sample learner 20', course: 'Python Programming Foundation', rating: 4.5, quote: 'File handling exercises showed me how a program can save and reuse information.', isSample: true },
 ];
+
+// Academic program detail pages. Confirm current subjects, timings and fees with admissions.
+export const academicProgramDetails = {
+  kids: {
+    headline: 'Small steps.', accent: 'Strong foundations.',
+    audience: 'Young learners building confidence with school learning.',
+    introduction: 'A supportive starting point for children to understand core concepts, practise everyday skills and develop a steady study routine.',
+    focus: [
+      { title: 'Core concepts', description: 'Work through the basics in manageable steps and connect new ideas with familiar examples.' },
+      { title: 'Learning habits', description: 'Build a routine for practice, schoolwork and revision that grows with your child.' },
+      { title: 'Confidence', description: 'Make room for questions, practise explaining ideas and approach learning with greater independence.' },
+    ],
+    enquiry: 'Share your child’s class, school subjects and the areas where they need support. Our team can discuss a suitable learning plan.',
+  },
+  matric: {
+    headline: 'Clear concepts.', accent: 'Confident preparation.',
+    audience: 'Students in 9th and 10th class preparing for board examinations.',
+    introduction: 'Bring structure to your Matric studies with subject understanding, question practice and focused revision for your next exam.',
+    focus: [
+      { title: '9th class foundations', description: 'Strengthen your understanding of new topics and practise applying concepts to subject questions.' },
+      { title: '10th class preparation', description: 'Revisit difficult topics, connect what you have learned and organise your preparation around your syllabus.' },
+      { title: 'Board exam readiness', description: 'Focus on revision, clear written answers and managing your time when working through exam questions.' },
+    ],
+    enquiry: 'Share your class, board, subject group and the subjects you want help with. Ask our team about available batches and fees.',
+  },
+  intermediate: {
+    headline: 'Build understanding.', accent: 'Take your next step.',
+    audience: 'First-year and second-year students preparing for their next academic step.',
+    introduction: 'Develop a clearer understanding of advanced topics and a practical approach to revision as you work through Intermediate studies.',
+    focus: [
+      { title: 'First-year support', description: 'Adjust to the depth of college-level topics with concept building and regular subject practice.' },
+      { title: 'Second-year focus', description: 'Connect key ideas, revisit challenging chapters and make progress through your syllabus.' },
+      { title: 'Exam preparation', description: 'Organise revision around the topics you need most and practise presenting complete, well-structured answers.' },
+    ],
+    enquiry: 'Tell us your year, board, study group and preferred subjects. Our team will help you check suitable subject support and class timings.',
+  },
+};

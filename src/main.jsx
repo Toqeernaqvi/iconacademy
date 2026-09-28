@@ -1,6 +1,8 @@
 import React, { useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import ProgramPage from './ProgramPage';
+import { academicProgramDetails } from './content/siteContent';
 import ComputerCourses from './ComputerCourses';
 import OurTeam from './OurTeam';
 import OnlineTutoring from './OnlineTutoring';
@@ -40,7 +42,8 @@ function Website() {
   }, [location]);
 
   const pathname = location.split('#')[0];
-  const page = /^\/computer-courses\/?$/.test(pathname) ? <ComputerCourses />
+  const programSlug = pathname.replace(/^\/|\/$/g, '');
+  const page = Object.hasOwn(academicProgramDetails, programSlug) ? <ProgramPage key={programSlug} slug={programSlug} /> : /^\/computer-courses\/?$/.test(pathname) ? <ComputerCourses />
     : /^\/online-tutoring\/?$/.test(pathname) ? <OnlineTutoring />
     : /^\/our-team\/?$/.test(pathname) ? <OurTeam /> : <App />;
 
@@ -48,7 +51,7 @@ function Website() {
     const link = event.target.closest('a');
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
     const url = new URL(link.href);
-    if (url.origin !== window.location.origin || !/^\/(computer-courses\/?|our-team\/?|online-tutoring\/?)?$/.test(url.pathname)) return;
+    if (url.origin !== window.location.origin || !/^\/(kids\/?|matric\/?|intermediate\/?|computer-courses\/?|our-team\/?|online-tutoring\/?)?$/.test(url.pathname)) return;
     event.preventDefault();
     navigate(url.href);
   }}>

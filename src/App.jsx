@@ -118,7 +118,7 @@ function App() {
               {programs.map((program) => (
                 <article className={`home-program-card ${program.accent}`} key={program.number}>
                   <span className="home-program-number">{program.number}</span><h3>{program.title}</h3><p>{program.description}</p><div className="tag-list">{program.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                  {program.title === 'Computer Courses' ? <a href="/computer-courses">View all courses <ArrowUpRight size={17} /></a> : <button onClick={() => scrollTo('contact')}>Ask about this program <ArrowUpRight size={17} /></button>}
+                  <a href={program.href}>{program.title === 'Computer Courses' ? 'View all courses' : 'Explore program'} <ArrowUpRight size={17} /></a>
                 </article>
               ))}
             </div>

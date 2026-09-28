@@ -80,6 +80,9 @@ export default function SiteLayout({ children, navigate }) {
             <nav className="footer-navigation" aria-label="Footer navigation">
               <h3>Explore</h3>
               <a href="/#programs">Our programs</a>
+              <a href="/kids">Kids</a>
+              <a href="/matric">Matric</a>
+              <a href="/intermediate">Intermediate</a>
               <a href="/computer-courses">Computer courses</a>
               <a href="/online-tutoring">Online tutoring</a>
               <a href="/our-team">Our team</a>
