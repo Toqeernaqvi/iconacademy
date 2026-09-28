@@ -8,6 +8,7 @@ import OurTeam from './OurTeam';
 import OnlineTutoring from './OnlineTutoring';
 import SiteLayout from './SiteLayout';
 import './styles.css';
+import './motion.css';
 
 function Website() {
   const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
@@ -16,7 +17,7 @@ function Website() {
     const url = new URL(href, window.location.href);
     const nextLocation = url.pathname + url.hash;
     if (nextLocation === window.location.pathname + window.location.hash) {
-      if (url.hash) document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({ behavior: 'smooth' });
+      if (url.hash) document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
       else window.scrollTo({ top: 0, behavior: 'instant' });
       return;
     }
@@ -55,7 +56,7 @@ function Website() {
     event.preventDefault();
     navigate(url.href);
   }}>
-    <SiteLayout navigate={navigate}>{page}</SiteLayout>
+    <SiteLayout navigate={navigate}><div className="site-route-entry" key={pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{page}</div></SiteLayout>
   </div>;
 }
 

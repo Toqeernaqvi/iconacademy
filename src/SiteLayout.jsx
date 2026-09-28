@@ -4,6 +4,7 @@ import { ArrowUpRight, MapPin, Menu, X } from 'lucide-react';
 import { academy, socialLinks } from './content/siteContent';
 import ThemeToggle from './ThemeToggle';
 import useSiteMotion from './useSiteMotion';
+import ScrollProgress from './ScrollProgress';
 
 
 export default function SiteLayout({ children, navigate }) {
@@ -24,7 +25,7 @@ export default function SiteLayout({ children, navigate }) {
   const navigateToSection = (id) => {
     setMenuOpen(false);
     if (id === 'contact') {
-      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('contact')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
       return;
     }
     navigate(`/#${id}`);
@@ -32,6 +33,7 @@ export default function SiteLayout({ children, navigate }) {
   return <div ref={siteRef} className="home-page-v2" onClick={(event) => {
     if (event.target.closest('a')) setMenuOpen(false);
   }}>
+      <ScrollProgress />
       <div className="home-announcement"><span>Admissions & new batches</span><strong>Kids · Matric · Intermediate · Computer Courses</strong><button onClick={() => navigateToSection('contact')}>Enquire now <ArrowUpRight size={14} /></button></div>
 
       <header className="home-header">

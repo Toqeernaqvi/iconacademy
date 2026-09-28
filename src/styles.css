@@ -512,51 +512,6 @@ html[data-theme='dark'] .seal-rings { border-color: rgba(129,166,216,.2); box-sh
   }
 }
 
-/* Shared interaction rhythm across home, courses, team and the footer. */
-:root { --motion-ease: cubic-bezier(.22, 1, .36, 1); }
-.home-nav > :is(a, button) { position: relative; }
-.home-nav > :is(a, button)::after {
-  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-  height: 2px; background: var(--red); transform: scaleX(0);
-  transform-origin: left; transition: transform .25s var(--motion-ease);
-}
-:is(.course-button, .home-header-cta, .home-read-more, .home-social-grid a,
-  .home-footer-top > div a, .category-tabs button) {
-  transition: transform .25s var(--motion-ease), background-color .25s ease,
-    color .25s ease, border-color .25s ease;
-}
-:is(.course-button, .home-header-cta, .home-read-more, .course-detail-card > a,
-  .home-contact-grid > a, .home-course-banner-grid > a) > svg:last-child {
-  transition: transform .25s var(--motion-ease);
-}
-.home-article-image { overflow: hidden; }
-.home-article-image img { transition: transform .65s var(--motion-ease); }
-:is(a, button):focus-visible { outline: 2px solid var(--red); outline-offset: 5px; }
-.home-nav > :is(a, button):focus-visible::after { transform: scaleX(1); }
-@media (hover: hover) and (pointer: fine) {
-  .home-nav > :is(a, button):hover::after { transform: scaleX(1); }
-  :is(.course-button, .home-header-cta, .home-footer-top > div a):hover { transform: translateY(-3px); }
-  .home-program-card:hover { transform: translateY(-4px); }
-  .home-article-image:hover img { transform: scale(1.035); }
-  :is(.course-button, .home-header-cta, .home-read-more, .course-detail-card > a,
-    .home-contact-grid > a, .home-course-banner-grid > a):hover > svg:last-child {
-    transform: translate(2px, -2px);
-  }
-}
-@media (prefers-reduced-motion: no-preference) {
-  :is(.course-button, .home-header-cta, .category-tabs button):active { transform: scale(.98); }
-  .home-mobile-menu { animation: site-fade-in .2s ease both; }
-  .home-mobile-menu nav { animation: site-rise-in .35s var(--motion-ease) both; }
-  .modal-backdrop { animation: site-fade-in .2s ease both; }
-  .article-modal { animation: site-rise-in .4s var(--motion-ease) both; }
-}
-@keyframes site-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes site-rise-in { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
-@media (prefers-reduced-motion: reduce) {
-  html:focus-within { scroll-behavior: auto; }
-  *, *::before, *::after { animation: none !important; transition: none !important; }
-}
-
 /* Shared footer: a focused invitation followed by a quiet directory. */
 .academy-footer {
   color: #edf3fc;
