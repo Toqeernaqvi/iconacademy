@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
-const readCurrentTheme = () => document.documentElement.dataset.theme === 'dark';
+const readCurrentTheme = () => true;
 
 function ThemeToggle() {
   const [isDark, setIsDark] = useState(readCurrentTheme);
+
+  useEffect(() => { setIsDark(document.documentElement.dataset.theme === 'dark'); }, []);
 
   const toggleTheme = () => {
     const nextTheme = isDark ? 'light' : 'dark';

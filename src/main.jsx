@@ -1,65 +1,10 @@
-import React, { useLayoutEffect, useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App';
-import ProgramPage from './ProgramPage';
-import { academicProgramDetails } from './content/siteContent';
-import ComputerCourses from './ComputerCourses';
-import OurTeam from './OurTeam';
-import OnlineTutoring from './OnlineTutoring';
-import SiteLayout from './SiteLayout';
+import React from 'react';
+import { hydrateRoot, createRoot } from 'react-dom/client';
+import Website from './Website';
 import './styles.css';
 import './motion.css';
 
-function Website() {
-  const [location, setLocation] = useState(() => window.location.pathname + window.location.hash);
-
-  const navigate = (href) => {
-    const url = new URL(href, window.location.href);
-    const nextLocation = url.pathname + url.hash;
-    if (nextLocation === window.location.pathname + window.location.hash) {
-      if (url.hash) document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-      else window.scrollTo({ top: 0, behavior: 'instant' });
-      return;
-    }
-    window.history.pushState({}, '', nextLocation);
-    setLocation(url.pathname + url.hash);
-    // Also notify the article modal when navigation leaves a blog URL.
-    window.dispatchEvent(new PopStateEvent('popstate'));
-  };
-
-  useLayoutEffect(() => {
-    const syncLocation = () => setLocation(window.location.pathname + window.location.hash);
-    window.addEventListener('popstate', syncLocation);
-    return () => window.removeEventListener('popstate', syncLocation);
-  }, []);
-
-  useLayoutEffect(() => {
-    if (window.location.pathname.startsWith('/blog/')) return;
-    if (window.location.hash) {
-      document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView({ behavior: 'instant' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    }
-  }, [location]);
-
-  const pathname = location.split('#')[0];
-  const programSlug = pathname.replace(/^\/|\/$/g, '');
-  const page = Object.hasOwn(academicProgramDetails, programSlug) ? <ProgramPage key={programSlug} slug={programSlug} /> : /^\/computer-courses\/?$/.test(pathname) ? <ComputerCourses />
-    : /^\/online-tutoring\/?$/.test(pathname) ? <OnlineTutoring />
-    : /^\/our-team\/?$/.test(pathname) ? <OurTeam /> : <App />;
-
-  return <div onClick={(event) => {
-    const link = event.target.closest('a');
-    if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
-    const url = new URL(link.href);
-    if (url.origin !== window.location.origin || !/^\/(kids\/?|matric\/?|intermediate\/?|computer-courses\/?|our-team\/?|online-tutoring\/?)?$/.test(url.pathname)) return;
-    event.preventDefault();
-    navigate(url.href);
-  }}>
-    <SiteLayout navigate={navigate}><div className="site-route-entry" key={pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{page}</div></SiteLayout>
-  </div>;
-}
-
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode><Website /></React.StrictMode>,
-);
+const root = document.getElementById('root');
+const app = <React.StrictMode><Website /></React.StrictMode>;
+if (root.hasChildNodes()) hydrateRoot(root, app);
+else createRoot(root).render(app);

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { ArrowLeft, ArrowUpRight, BookOpen, CheckCircle2, MapPin } from 'lucide-react';
 import { academy, programs, academicProgramDetails } from './content/siteContent';
 
@@ -6,14 +5,7 @@ export default function ProgramPage({ slug }) {
   const program = programs.find((item) => item.href === `/${slug}`);
   const details = academicProgramDetails[slug];
   const enquiryHref = `https://wa.me/${academy.whatsappNumber}?text=${encodeURIComponent(`Assalam-o-Alaikum, I would like details about the ${program.title} program. Please share subjects, admission details, timings and fees.`)}`;
-  useEffect(() => {
-    const previousTitle = document.title;
-    const meta = document.querySelector('meta[name="description"]');
-    const previousDescription = meta?.content;
-    document.title = `${program.title} Program | Icon Academy Lahore`;
-    if (meta) meta.content = program.description;
-    return () => { document.title = previousTitle; if (meta) meta.content = previousDescription; };
-  }, [program]);
+
 
   return <main className="academic-page">
     <section className="academic-hero section-wrap">

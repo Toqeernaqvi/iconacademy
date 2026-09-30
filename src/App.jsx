@@ -4,23 +4,14 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Code2,
-  Link as LinkIcon,
   Sparkles,
-  X,
 } from 'lucide-react';
 import { articles, globalPartner, programs, socialLinks } from './content/siteContent';
 
 const categories = ['All stories', ...new Set(articles.map((article) => article.category))];
 
-const getArticleFromPath = () => {
-  const match = window.location.pathname.match(/^\/blog\/([^/]+)\/?$/);
-  return match ? articles.find((article) => article.slug === decodeURIComponent(match[1])) ?? null : null;
-};
-
 function App() {
   const [activeCategory, setActiveCategory] = useState('All stories');
-  const [selectedArticle, setSelectedArticle] = useState(getArticleFromPath);
-  const [copied, setCopied] = useState(false);
   const partnerRef = useRef(null);
 
   useEffect(() => {
@@ -39,52 +30,8 @@ function App() {
     [activeCategory],
   );
 
-  useEffect(() => {
-    const handlePopState = () => setSelectedArticle(getArticleFromPath());
-    const handleEscape = (event) => {
-      if (event.key === 'Escape') {
-        if (selectedArticle) closeArticle();
-      }
-    };
-    window.addEventListener('popstate', handlePopState);
-    window.addEventListener('keydown', handleEscape);
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      window.removeEventListener('keydown', handleEscape);
-    };
-  }, [selectedArticle]);
-
-  useEffect(() => {
-    document.body.style.overflow = selectedArticle ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [selectedArticle]);
-
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-  };
-
-  const openArticle = (article) => {
-    setSelectedArticle(article);
-    setCopied(false);
-    window.history.pushState({ articleModal: true }, '', `/blog/${article.slug}`);
-  };
-
-  const closeArticle = () => {
-    if (!selectedArticle) return;
-    setSelectedArticle(null);
-    setCopied(false);
-    if (window.history.state?.articleModal) window.history.back();
-    else window.history.replaceState({}, '', '/');
-  };
-
-  const shareArticle = async () => {
-    const shareData = { title: selectedArticle.title, text: selectedArticle.excerpt, url: window.location.href };
-    if (navigator.share) {
-      await navigator.share(shareData).catch(() => {});
-      return;
-    }
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
   };
 
   const facebookSocial = socialLinks.find((social) => social.label === 'Facebook');
@@ -96,9 +43,9 @@ function App() {
           <div className="course-angle course-angle-blue" /><div className="course-angle course-angle-red" />
           <div className="section-wrap home-hero-grid">
             <div className="home-hero-copy">
-              <p className="course-eyebrow"><Sparkles size={15} /> Academic & professional learning</p>
+              <p className="course-eyebrow"><Sparkles size={15} /> Icon Academy · Rizwan Garden, Lahore</p>
               <h1>Learn today.<br /><em>Lead tomorrow.</em></h1>
-              <p>Strong academic foundations for Kids, Matric and Intermediate students—plus practical computer courses for career-ready skills.</p>
+              <p>Tuition for Kids, Matric and Intermediate students in Rizwan Garden, Lahore, plus practical computer courses and online tutoring to build academic confidence and career-ready skills.</p>
               <div className="course-hero-actions"><button className="course-button course-button-primary" onClick={() => scrollTo('programs')}>Explore programs <ArrowUpRight size={17} /></button><a className="course-button course-button-secondary" href="/computer-courses">View computer courses <Code2 size={17} /></a><a className="course-button course-button-secondary" href="/online-tutoring">Online tutoring <ArrowUpRight size={17} /></a></div>
               <div className="home-hero-points"><span><CheckCircle2 size={15} /> Guided learning</span><span><CheckCircle2 size={15} /> Practical skills</span><span><CheckCircle2 size={15} /> Career pathways</span></div>
             </div>
@@ -149,7 +96,7 @@ function App() {
           <div className="section-wrap">
             <div className="home-section-heading"><div><p>04 / Learning journal</p><h2>Useful ideas.<br /><em>Academy news.</em></h2></div><span>Guides and updates designed to help students make better learning decisions.</span></div>
             <div className="category-tabs" role="tablist" aria-label="Story categories">{categories.map((category) => <button role="tab" aria-selected={activeCategory === category} className={activeCategory === category ? 'active' : ''} onClick={() => setActiveCategory(category)} key={category}>{category}</button>)}</div>
-            <div className="home-article-grid">{filteredArticles.map((article) => <article key={article.slug}><button className="home-article-image" onClick={() => openArticle(article)}><img src={article.image} alt="" /><span>{article.category}</span></button><div className="article-meta"><span>{article.category}</span><time>{article.date}</time></div><h3>{article.title}</h3><p>{article.excerpt}</p><button className="home-read-more" onClick={() => openArticle(article)}>Read article <ArrowUpRight size={15} /></button></article>)}</div>
+            <div className="home-article-grid">{filteredArticles.map((article) => <article key={article.slug}><a className="home-article-image" href={`/blog/${article.slug}`} aria-label={article.title}><img src={article.image} alt="" loading="lazy" width="1200" height="630" /><span>{article.category}</span></a><div className="article-meta"><span>{article.category}</span><time dateTime={new Date(`${article.date} UTC`).toISOString().slice(0, 10)}>{article.date}</time></div><h3>{article.title}</h3><p>{article.excerpt}</p><a className="home-read-more" href={`/blog/${article.slug}`}>Read article <ArrowUpRight size={15} /></a></article>)}</div>
           </div>
         </section>
 
@@ -158,7 +105,7 @@ function App() {
 
 
 
-      {selectedArticle && <div className="modal-backdrop" role="presentation" onMouseDown={closeArticle}><article className="article-modal" role="dialog" aria-modal="true" aria-label={selectedArticle.title} onMouseDown={(event) => event.stopPropagation()}><div className="modal-actions"><button aria-label="Share story" onClick={shareArticle}><LinkIcon size={18} /><span>{copied ? 'Copied' : 'Share'}</span></button><button aria-label="Close story" onClick={closeArticle}><X size={20} /></button></div><img src={selectedArticle.image} alt="" /><div className="modal-content"><div className="article-meta"><span>{selectedArticle.category}</span><span>{selectedArticle.date} · {selectedArticle.readTime}</span></div><h2>{selectedArticle.title}</h2><p className="article-lead">{selectedArticle.excerpt}</p>{selectedArticle.body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}</div></article></div>}
+
     </div>
   );
 }
