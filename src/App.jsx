@@ -2,7 +2,6 @@ import SocialIcon from './SocialIcon';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
-  ArrowDown,
   CheckCircle2,
   Code2,
   Sparkles,
@@ -87,8 +86,8 @@ function App() {
             <div className="home-section-heading compact"><div><p>03 / Stay connected</p><h2>Follow the<br /><em>academy.</em></h2></div><span>Lessons, admissions, student work and academy news—wherever you already scroll.</span></div>
             <div className="home-social-grid">{socialLinks.map(({ label, href }) => { return <a href={href} target="_blank" rel="noreferrer" key={label}><SocialIcon platform={label} size={24} /><strong>{label}</strong><ArrowUpRight size={16} /></a>; })}</div>
             <div className="home-facebook-grid">
-              <div><p className="course-eyebrow"><SocialIcon platform="Facebook" size={15} /> Live Facebook timeline</p><h3>Latest updates,<br />direct from our page.</h3><p>See current course announcements, admissions information and public posts from Icon Academy Lahore.</p><a className="course-button course-button-primary" href={facebookSocial.href} target="_blank" rel="noreferrer">Open Facebook <ArrowUpRight size={16} /></a></div>
-              <div className="facebook-feed"><div className="facebook-feed-label"><SocialIcon platform="Facebook" size={15} /><span>Live from our Facebook page</span><span className="facebook-live-dot" /></div><div className="facebook-feed-scroll"><iframe title="Icon Academy Lahore Facebook updates" src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Ficonacademylahore&tabs=timeline&width=500&height=820&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true" width="500" height="820" scrolling="yes" frameBorder="0" allowFullScreen loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" /></div><div className="facebook-feed-hint"><span>Scroll to see more updates</span><ArrowDown size={15} /></div></div>
+              <div className="home-facebook-copy"><p className="course-eyebrow"><SocialIcon platform="Facebook" size={15} /> From our Facebook page</p><h3>Latest updates,<br />straight from the academy.</h3><p>Follow admissions news, class updates and useful study resources from The Icon Academy.</p><a className="course-button course-button-primary" href={facebookSocial.href} target="_blank" rel="noreferrer">Follow us on Facebook <ArrowUpRight size={16} /></a></div>
+              <a className="home-update-preview" href={facebookSocial.href} target="_blank" rel="noreferrer" aria-label="Open The Icon Academy Facebook page"><div className="home-update-preview-top"><span><SocialIcon platform="Facebook" size={17} /> STUDY RESOURCE · CLASS 12</span><ArrowUpRight size={17} /></div><img src="/images/notes/computer-science-short-questions-preview.jpg" alt="Preview of The Icon Academy 12th Class Computer Science exercise short questions and answers" loading="lazy" /><div className="home-update-preview-caption"><strong>Computer Science · Short Questions & Answers</strong><span>Open the full post on Facebook <ArrowUpRight size={14} /></span></div></a>
             </div>
           </div>
         </section>

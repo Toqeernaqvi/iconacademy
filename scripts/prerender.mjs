@@ -5,7 +5,7 @@ const env = loadEnv('production', process.cwd(), 'VITE_');
 const origin = process.env.VITE_SITE_URL || env.VITE_SITE_URL;
 if (!origin || new URL(origin).protocol !== 'https:' || new URL(origin).pathname !== '/') throw new Error('Set VITE_SITE_URL to the public HTTPS origin before building.');
 const template = await readFile('dist/index.html', 'utf8');
-for (const path of [...routes, '/admin/notes', '/404']) {
+for (const path of [...routes, '/admin', '/admin/notes', '/admin/events', '/404']) {
   const rendered = render(path);
   const bodyMarker = '<div id="ssr-app-root">';
   const bodyStart = rendered.indexOf(bodyMarker);

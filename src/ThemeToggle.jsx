@@ -13,7 +13,7 @@ function ThemeToggle() {
     document.documentElement.dataset.theme = nextTheme;
     document.documentElement.style.colorScheme = nextTheme;
     localStorage.setItem('icon-academy-theme', nextTheme);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', nextTheme === 'dark' ? '#071426' : '#073f8c');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', nextTheme === 'dark' ? '#0b111b' : '#073f8c');
     setIsDark(!isDark);
   };
 

@@ -5,7 +5,7 @@ import { useLayoutEffect } from 'react';
 const revealTargets = [
   '.home-hero-copy > *', '.home-hero-visual', '.home-proof-grid > div',
   '.home-section-heading', '.home-program-card', '.home-course-banner-grid > *',
-  '.home-social-grid > a', '.home-facebook-grid > div', '.home-article-grid > article',
+  '.home-social-grid > a', '.home-facebook-copy, .home-update-preview', '.home-article-grid > article',
   '.category-tabs', '.footer-invitation-copy', '.footer-contact-actions',
   '.footer-directory > *', '.footer-legal',
   '.course-hero-copy > *', '.course-hero-seal', '.course-section-heading',
@@ -22,6 +22,8 @@ const revealTargets = [
   '.academic-hero > .academic-back', '.academic-hero-grid > div > *', '.academic-overview',
   '.academic-focus > .course-eyebrow', '.academic-focus > h2', '.academic-focus-grid > article',
   '.academic-admissions > *', '.academic-related > .course-eyebrow', '.academic-related > div > a',
+  '.events-hero-copy > *', '.events-hero-mark', '.events-section-heading > *', '.event-story-card', '.events-note > *',
+  '.admin-dashboard-welcome > *', '.admin-dashboard-stats > article', '.admin-quick-card', '.admin-recent-panel', '.admin-dashboard-storage',
 ].join(',');
 
 const visualTargets = '.home-hero-visual, .course-hero-seal, .team-hero-panel, .online-showcase, .academic-overview';

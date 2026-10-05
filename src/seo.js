@@ -9,16 +9,19 @@ const pages = {
   '/computer-courses': ['Computer Courses in Lahore | Icon Academy', 'Explore web development, Python, C++, digital marketing, video editing and spoken English courses at Icon Academy in Rizwan Garden, Lahore.'],
   '/online-tutoring': ['Online Tutoring & Skills Courses | Icon Academy Lahore', 'Learn from home with Icon Academy online tutoring and practical skills courses. Enquire about school subjects, programming, marketing and creative skills.'],
   '/our-team': ['Meet Our Teachers & Leadership | Icon Academy Lahore', 'Meet the leadership and faculty at Icon Academy, Rizwan Garden, Lahore, supporting academic learning, online tutoring and practical professional skills.'],
+  '/events': ['Academy Events & Celebrations | Icon Academy Lahore', 'See events and celebrations at The Icon Academy in Lahore, including our recent Teachers’ Day celebration.'],
   '/special-notes': ['Class Notes & Guess Papers | Icon Academy Lahore', 'Download available class-wise study notes and mathematics guess papers for first year and second year from The Icon Academy Lahore.'],
   '/admin/notes': ['Notes Manager | Icon Academy Lahore', 'Manage Icon Academy study notes by class and subject.'],
+  '/admin/events': ['Events Manager | Icon Academy Lahore', 'Manage Icon Academy events, celebrations, photos and video links.'],
+  '/admin': ['Admin Dashboard | Icon Academy Lahore', 'Manage academy events and study resources from the Icon Academy content dashboard.'],
 };
-export const routes = [...Object.keys(pages).filter(path => path !== '/admin/notes'), ...articles.map(article => `/blog/${article.slug}`)];
+export const routes = [...Object.keys(pages).filter(path => !path.startsWith('/admin/')), ...articles.map(article => `/blog/${article.slug}`)];
 export const normalizePath = path => path.replace(/\/+$/, '') || '/';
 export function getSeo(pathname, origin = siteUrl) {
   const path = normalizePath(pathname);
   const article = articles.find(item => `/blog/${item.slug}` === path);
   const known = Boolean(pages[path] || article);
-  const indexable = known && path !== '/admin/notes';
+  const indexable = known && !path.startsWith('/admin/');
   const [title, description] = pages[path] || (article ? [`${article.title} | Icon Academy Lahore`, article.excerpt] : ['Page Not Found | Icon Academy Lahore', 'This page could not be found. Explore Icon Academy programs and courses.']);
   const absolute = value => origin ? new URL(value, `${origin}/`).href : undefined;
   const url = absolute(path);

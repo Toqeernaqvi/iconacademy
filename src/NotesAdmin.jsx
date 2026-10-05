@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowLeft, Download, FilePlus2, FileText, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
-import { initialNotes, readNotes, writeNotes } from './notesStore';
+import { ArrowDownToLine, ArrowLeft, Download, FilePlus2, FileText, LogOut, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
+import { readNotes, writeNotes } from './notesStore';
+import { boardSubjectsByClass } from './content/boardSubjects';
 
 const classOptions = [
   { id: '9', label: 'Class 9', year: 'Matric · Part I' },
@@ -8,7 +9,16 @@ const classOptions = [
   { id: '11', label: 'Class 11', year: 'Intermediate · Part I' },
   { id: '12', label: 'Class 12', year: 'Intermediate · Part II' },
 ];
-const newForm = { classId: '9', subject: 'Mathematics', title: '' };
+const newForm = { classId: '9', subject: 'Mathematics', customSubject: '', title: '' };
+const defaultSubjectByClass = { '9': 'Mathematics', '10': 'Mathematics', '11': 'English', '12': 'English' };
+function getSubjectGroups(classId) {
+  const seen = new Set();
+  return (boardSubjectsByClass[classId] || []).map(group => ({ ...group, options: group.options.filter(subject => {
+    if (seen.has(subject)) return false;
+    seen.add(subject);
+    return true;
+  }) })).filter(group => group.options.length);
+}
 
 function saveJson(filename, data) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
@@ -19,7 +29,7 @@ function saveJson(filename, data) {
   URL.revokeObjectURL(url);
 }
 
-export default function NotesAdmin() {
+export default function NotesAdmin({ onLogout }) {
   const [notes, setNotes] = useState(readNotes);
   const [form, setForm] = useState(newForm);
   const [file, setFile] = useState(null);
@@ -33,14 +43,21 @@ export default function NotesAdmin() {
     catch { setMessage('Browser storage is full. Export a backup, remove large files, or use a backend for larger libraries.'); return false; }
   };
   const onFile = event => setFile(event.target.files?.[0] || null);
+  const subjectGroups = getSubjectGroups(form.classId);
+  const subjectOptions = subjectGroups.flatMap(group => group.options);
+  const selectedSubject = subjectOptions.includes(form.subject) ? form.subject : 'Other';
+  const changeClass = classId => setForm({ ...form, classId, subject: defaultSubjectByClass[classId], customSubject: '' });
+  const changeSubject = subject => setForm({ ...form, subject, customSubject: subject === 'Other' ? form.customSubject : '' });
   const submit = event => {
     event.preventDefault();
     const title = form.title.trim();
     if (!title) return setMessage('Please add a title.');
+    const subject = form.subject === 'Other' ? form.customSubject.trim() : form.subject;
+    if (!subject) return setMessage('Please choose or enter a subject.');
     if (!editing && !file) return setMessage('Please choose a PDF to upload.');
     if (file && file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return setMessage('Please choose a PDF file.');
     const url = file ? URL.createObjectURL(file) : editing?.url;
-    const note = { id: editing?.id || `note-${Date.now()}`, classId: form.classId, subject: form.subject.trim() || 'General', title, fileName: file?.name || editing?.fileName || `${title}.pdf`, url, existingAsset: false, fileData: file ? undefined : editing?.fileData };
+    const note = { id: editing?.id || `note-${Date.now()}`, classId: form.classId, subject, title, fileName: file?.name || editing?.fileName || `${title}.pdf`, url, existingAsset: false, fileData: file ? undefined : editing?.fileData };
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -57,7 +74,12 @@ export default function NotesAdmin() {
     resetForm();
   };
   const resetForm = () => { setForm(newForm); setFile(null); setEditing(null); if (fileRef.current) fileRef.current.value = ''; };
-  const startEdit = note => { setEditing(note); setForm({ classId: note.classId, subject: note.subject, title: note.title }); setFile(null); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const startEdit = note => {
+    setEditing(note);
+    const available = getSubjectGroups(note.classId).flatMap(group => group.options);
+    setForm({ classId: note.classId, subject: available.includes(note.subject) ? note.subject : 'Other', customSubject: available.includes(note.subject) ? '' : note.subject, title: note.title });
+    setFile(null); window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   const deleteNote = note => {
     if (!window.confirm(`Delete “${note.title}”?`)) return;
     if (!commit(notes.filter(item => item.id !== note.id))) return;
@@ -94,15 +116,16 @@ export default function NotesAdmin() {
 
   return <main className="notes-admin-page">
     <div className="section-wrap notes-admin-wrap">
-      <a className="notes-admin-back" href="/special-notes"><ArrowLeft size={16} /> View public notes page</a>
+      <a className="notes-admin-back" href="/special-notes"><ArrowLeft size={16} /> View public notes page</a><a className="admin-manager-dashboard-link" href="/admin">Admin dashboard</a><button className="admin-manager-logout" type="button" onClick={onLogout}><LogOut size={14} /> Sign out</button>
       <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Notes manager</h1><p>Organize study resources by class, subject and title.</p></div><div className="notes-admin-count"><strong>{notes.length}</strong><span>{notes.length === 1 ? 'note' : 'notes'} in this browser</span></div></header>
       <div className="notes-admin-notice"><strong>Browser-only storage</strong><span>Changes stay in this browser. Export backups regularly. To publish updates, export website files, add the PDFs under <code>public/notes</code> and redeploy.</span></div>
       <div className="notes-admin-grid">
         <section className="notes-admin-panel">
           <p className="course-eyebrow">{editing ? 'UPDATE RESOURCE' : 'ADD RESOURCE'}</p><h2>{editing ? 'Edit this note' : 'Upload a PDF'}</h2>
           <form className="notes-admin-form" onSubmit={submit}>
-            <label>Class<select value={form.classId} onChange={event => setForm({ ...form, classId: event.target.value })}>{classOptions.map(item => <option value={item.id} key={item.id}>{item.label} — {item.year}</option>)}</select></label>
-            <label>Subject<input value={form.subject} onChange={event => setForm({ ...form, subject: event.target.value })} placeholder="e.g. Mathematics" /></label>
+            <label>Class<select value={form.classId} onChange={event => changeClass(event.target.value)}>{classOptions.map(item => <option value={item.id} key={item.id}>{item.label} — {item.year}</option>)}</select></label>
+            <label>Subject<select value={selectedSubject} onChange={event => changeSubject(event.target.value)}><option value="" disabled>Select a subject</option>{subjectGroups.map(group => <optgroup label={group.label} key={group.label}>{group.options.map(subject => <option value={subject} key={subject}>{subject}</option>)}</optgroup>)}<option value="Other">Other subject…</option></select></label>
+            {selectedSubject === 'Other' && <label>Enter subject name<input value={form.customSubject} onChange={event => setForm({ ...form, customSubject: event.target.value })} placeholder="Type the subject name" required /></label>}
             <label>Note title<input value={form.title} onChange={event => setForm({ ...form, title: event.target.value })} placeholder="e.g. 1st Year Math Guess Paper 2026" required /></label>
             <label className="notes-upload-label">PDF file<input ref={fileRef} type="file" accept="application/pdf,.pdf" onChange={onFile} />{file ? <span className="notes-file-picked"><FileText size={16} />{file.name}</span> : editing ? <span className="notes-upload-hint">Choose a replacement PDF, or leave empty to keep the current file.</span> : <span className="notes-upload-hint"><Upload size={17} /> Select a PDF from your device</span>}</label>
             {message && <p className="notes-admin-message" role="status">{message}</p>}
