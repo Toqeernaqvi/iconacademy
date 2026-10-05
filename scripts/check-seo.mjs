@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
 const sitemap = await readFile('dist/sitemap.xml', 'utf8');
 const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(match => match[1]);
-assert.equal(urls.length, 10);
+assert.equal(urls.length, 11);
 const titles = new Set();
 for (const url of urls) {
   const path = new URL(url).pathname;
@@ -24,5 +24,6 @@ for (const url of urls) {
 }
 assert.equal(titles.size, urls.length, 'Unique page titles');
 assert((await readFile('dist/404.html', 'utf8')).includes('noindex, follow'));
+assert((await readFile('dist/admin/notes.html', 'utf8')).includes('noindex, follow'));
 assert((await readFile('dist/robots.txt', 'utf8')).includes(new URL('/sitemap.xml', urls[0]).href));
 console.log(`PASS: ${urls.length} static pages, unique titles, metadata, schema, internal links, sitemap, robots and 404.`);

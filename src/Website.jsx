@@ -1,7 +1,8 @@
 import React, { useLayoutEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { articles } from './content/siteContent';
 import ArticlePage from './ArticlePage';
-import { seoHead } from './seo';
+import { getSeo } from './seo';
 import App from './App';
 import ProgramPage from './ProgramPage';
 import { academicProgramDetails } from './content/siteContent';
@@ -9,6 +10,8 @@ import ComputerCourses from './ComputerCourses';
 import OurTeam from './OurTeam';
 import OnlineTutoring from './OnlineTutoring';
 import SiteLayout from './SiteLayout';
+import SpecialNotes from './SpecialNotes';
+import NotesAdmin from './NotesAdmin';
 
 
 
@@ -44,18 +47,35 @@ export default function Website({ initialPath = '/' }) {
   }, [location]);
 
   const pathname = location.split('#')[0];
-  useLayoutEffect(() => {
-    document.head.querySelectorAll('[data-seo], title, meta[name="description"]').forEach(node => node.remove());
-    document.head.insertAdjacentHTML('beforeend', seoHead(pathname));
-  }, [pathname]);
+  const seo = getSeo(pathname);
 
   const article = articles.find(item => `/blog/${item.slug}` === pathname.replace(/\/$/, ''));
   const programSlug = pathname.replace(/^\/|\/$/g, '');
   const page = article ? <ArticlePage article={article} /> : Object.hasOwn(academicProgramDetails, programSlug) ? <ProgramPage key={programSlug} slug={programSlug} /> : /^\/computer-courses\/?$/.test(pathname) ? <ComputerCourses />
     : /^\/online-tutoring\/?$/.test(pathname) ? <OnlineTutoring />
-    : /^\/our-team\/?$/.test(pathname) ? <OurTeam /> : pathname === "/" ? <App /> : <main className="section-wrap academic-hero"><h1>Page not found</h1><p>The page you requested does not exist.</p><a href="/">Return to Icon Academy home</a></main>;
+    : /^\/our-team\/?$/.test(pathname) ? <OurTeam /> : /^\/special-notes\/?$/.test(pathname) ? <SpecialNotes /> : /^\/admin\/notes\/?$/.test(pathname) ? <NotesAdmin /> : pathname === "/" ? <App /> : <main className="section-wrap academic-hero"><h1>Page not found</h1><p>The page you requested does not exist.</p><a href="/">Return to Icon Academy home</a></main>;
 
-  return <div onClick={(event) => {
+  return <>
+    <Helmet prioritizeSeoTags>
+      <title>{seo.title}</title>
+      <meta name="description" content={seo.description} />
+      <meta name="robots" content={seo.indexable ? 'index, follow, max-image-preview:large' : 'noindex, follow'} />
+      {seo.url && <link rel="canonical" href={seo.url} />}
+      <meta property="og:type" content={seo.article ? 'article' : 'website'} />
+      <meta property="og:site_name" content="Icon Academy Lahore" />
+      <meta property="og:locale" content="en_PK" />
+      <meta property="og:title" content={seo.title} />
+      <meta property="og:description" content={seo.description} />
+      {seo.url && <meta property="og:url" content={seo.url} />}
+      {seo.image && <meta property="og:image" content={seo.image} />}
+      <meta property="og:image:alt" content={seo.article ? seo.article.title : 'Students learning at The Icon Academy Lahore'} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={seo.title} />
+      <meta name="twitter:description" content={seo.description} />
+      {seo.image && <meta name="twitter:image" content={seo.image} />}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(seo.structuredData).replace(/</g, '\\u003c') }} />
+    </Helmet>
+    <div onClick={(event) => {
     const link = event.target.closest('a');
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
     const url = new URL(link.href);
@@ -64,6 +84,6 @@ export default function Website({ initialPath = '/' }) {
     navigate(url.href);
   }}>
     <SiteLayout navigate={navigate}><div className="site-route-entry" key={pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{page}</div></SiteLayout>
-  </div>;
+    </div>
+  </>;
 }
-

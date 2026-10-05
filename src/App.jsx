@@ -2,6 +2,7 @@ import SocialIcon from './SocialIcon';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowUpRight,
+  ArrowDown,
   CheckCircle2,
   Code2,
   Sparkles,
@@ -87,7 +88,7 @@ function App() {
             <div className="home-social-grid">{socialLinks.map(({ label, href }) => { return <a href={href} target="_blank" rel="noreferrer" key={label}><SocialIcon platform={label} size={24} /><strong>{label}</strong><ArrowUpRight size={16} /></a>; })}</div>
             <div className="home-facebook-grid">
               <div><p className="course-eyebrow"><SocialIcon platform="Facebook" size={15} /> Live Facebook timeline</p><h3>Latest updates,<br />direct from our page.</h3><p>See current course announcements, admissions information and public posts from Icon Academy Lahore.</p><a className="course-button course-button-primary" href={facebookSocial.href} target="_blank" rel="noreferrer">Open Facebook <ArrowUpRight size={16} /></a></div>
-              <div className="facebook-feed"><iframe title="Icon Academy Lahore Facebook updates" src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Ficonacademylahore&tabs=timeline&width=500&height=620&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true" width="500" height="620" scrolling="no" frameBorder="0" allowFullScreen loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" /></div>
+              <div className="facebook-feed"><div className="facebook-feed-label"><SocialIcon platform="Facebook" size={15} /><span>Live from our Facebook page</span><span className="facebook-live-dot" /></div><div className="facebook-feed-scroll"><iframe title="Icon Academy Lahore Facebook updates" src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Ficonacademylahore&tabs=timeline&width=500&height=820&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true" width="500" height="820" scrolling="yes" frameBorder="0" allowFullScreen loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share" /></div><div className="facebook-feed-hint"><span>Scroll to see more updates</span><ArrowDown size={15} /></div></div>
             </div>
           </div>
         </section>

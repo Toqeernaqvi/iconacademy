@@ -42,6 +42,7 @@ export default function SiteLayout({ children, navigate }) {
           <button onClick={() => navigateToSection('programs')}>Programs</button>
           <a href="/our-team">Our team</a>
           <a href="/online-tutoring">Online tutoring</a>
+          <a href="/special-notes">Special notes</a>
           <button onClick={() => navigateToSection('partner')}>Career partner</button>
           <button onClick={() => navigateToSection('updates')}>Updates</button>
           <button onClick={() => navigateToSection('journal')}>Journal</button>
@@ -52,7 +53,7 @@ export default function SiteLayout({ children, navigate }) {
         <button className="home-menu-toggle" aria-expanded={menuOpen} aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
       </header>
 
-      {menuOpen && <div className="home-mobile-menu"><nav><a href="/online-tutoring">Online tutoring <ArrowUpRight size={17} /></a><button onClick={() => navigateToSection('programs')}>Programs</button><a href="/our-team">Our team <ArrowUpRight size={17} /></a><button onClick={() => navigateToSection('partner')}>Career partner</button><button onClick={() => navigateToSection('updates')}>Latest updates</button><button onClick={() => navigateToSection('journal')}>Journal</button><button onClick={() => navigateToSection('contact')}>Contact & location</button><a href="/computer-courses">Computer courses <ArrowUpRight size={17} /></a></nav></div>}
+      {menuOpen && <div className="home-mobile-menu"><nav><a href="/online-tutoring">Online tutoring <ArrowUpRight size={17} /></a><a href="/special-notes">Special notes <ArrowUpRight size={17} /></a><button onClick={() => navigateToSection('programs')}>Programs</button><a href="/our-team">Our team <ArrowUpRight size={17} /></a><button onClick={() => navigateToSection('partner')}>Career partner</button><button onClick={() => navigateToSection('updates')}>Latest updates</button><button onClick={() => navigateToSection('journal')}>Journal</button><button onClick={() => navigateToSection('contact')}>Contact & location</button><a href="/computer-courses">Computer courses <ArrowUpRight size={17} /></a></nav></div>}
 
       {children}
       <footer className="academy-footer">
@@ -87,6 +88,7 @@ export default function SiteLayout({ children, navigate }) {
               <a href="/intermediate">Intermediate</a>
               <a href="/computer-courses">Computer courses</a>
               <a href="/online-tutoring">Online tutoring</a>
+              <a href="/special-notes">Special notes</a>
               <a href="/our-team">Our team</a>
               <a href="/#partner">Career partner</a>
               <a href="/#journal">Learning journal</a>

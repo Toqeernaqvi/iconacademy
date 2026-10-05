@@ -1,13 +1,18 @@
 import { readFile, writeFile, mkdir, rm } from 'node:fs/promises';
-import { render, routes, seoHead } from '../.prerender/entry-server.js';
+import { render, routes } from '../.prerender/entry-server.js';
 const { loadEnv } = await import('vite');
 const env = loadEnv('production', process.cwd(), 'VITE_');
 const origin = process.env.VITE_SITE_URL || env.VITE_SITE_URL;
 if (!origin || new URL(origin).protocol !== 'https:' || new URL(origin).pathname !== '/') throw new Error('Set VITE_SITE_URL to the public HTTPS origin before building.');
 const template = await readFile('dist/index.html', 'utf8');
-for (const path of [...routes, '/404']) {
-  const head = seoHead(path, origin);
-  const html = template.replace(/<title>[\s\S]*?<\/title>/, '').replace(/<meta name="description"[^>]*>/, '').replace('</head>', `${head}\n</head>`).replace('<div id="root"></div>', `<div id="root">${render(path)}</div>`);
+for (const path of [...routes, '/admin/notes', '/404']) {
+  const rendered = render(path);
+  const bodyMarker = '<div id="ssr-app-root">';
+  const bodyStart = rendered.indexOf(bodyMarker);
+  if (bodyStart < 0) throw new Error(`Helmet SSR output is missing the app root for ${path}`);
+  const head = rendered.slice(0, bodyStart);
+  const body = rendered.slice(bodyStart);
+  const html = template.replace(/<title>[\s\S]*?<\/title>/, '').replace(/<meta name="description"[^>]*>/, '').replace('</head>', `${head}\n</head>`).replace('<div id="root"></div>', `<div id="root">${body}</div>`);
   const target = path === '/' ? 'dist/index.html' : path === '/404' ? 'dist/404.html' : `dist${path}.html`;
   await mkdir(target.slice(0, target.lastIndexOf('/')), { recursive: true });
   await writeFile(target, html.replace(/^[ \t]+$/gm, ''));

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
 
-const readCurrentTheme = () => true;
+const readCurrentTheme = () => typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark';
 
 function ThemeToggle() {
   const [isDark, setIsDark] = useState(readCurrentTheme);

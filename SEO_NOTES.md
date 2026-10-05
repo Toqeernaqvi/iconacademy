@@ -2,9 +2,9 @@
 
 Production origin: https://theiconacademy.vercel.app (configured in `.env.production`). Set `VITE_SITE_URL` to the preferred HTTPS origin and rebuild if the domain changes. Never set it to a preview deployment URL.
 
-`npm run build` generates complete HTML for all ten public routes and a custom 404 page, then generates `/robots.txt` and `/sitemap.xml`. Vercel serves these files directly; the previous catch-all homepage rewrite was removed so missing URLs return 404. Vercel clean URLs map paths such as `/kids` to `kids.html`. Other hosts must support the same mapping and return the custom 404 with HTTP status 404.
+`npm run build` generates complete HTML for all eleven public routes and a custom 404 page, then generates `/robots.txt` and `/sitemap.xml`. Vercel serves these files directly; the previous catch-all homepage rewrite was removed so missing URLs return 404. Vercel clean URLs map paths such as `/kids` to `kids.html`. Other hosts must support the same mapping and return the custom 404 with HTTP status 404.
 
-Page titles, descriptions, canonical URLs, Open Graph/Twitter previews and JSON-LD live in `src/seo.js`. Content stays in `src/content/siteContent.js`. The build renders current content automatically; article links open full article pages. Structured data describes the academy, website, breadcrumbs, articles and the computer course list. No fabricated ratings, opening hours or credentials are included. Partner LinkedIn is excluded from academy `sameAs`.
+Page-specific titles, descriptions, canonical URLs, Open Graph/Twitter previews and JSON-LD are configured in `src/seo.js` and rendered through `react-helmet-async` in `src/Website.jsx`. The prerenderer puts Helmet metadata in the initial HTML response. The notes manager is excluded from the sitemap and marked `noindex`. Content stays in `src/content/siteContent.js`. The build renders current content automatically; article links open full article pages. Structured data describes the academy, website, breadcrumbs, articles and the computer course list. No fabricated ratings, opening hours or credentials are included. Partner LinkedIn is excluded from academy `sameAs`.
 
 ## Social review
 
@@ -24,4 +24,4 @@ Google references: https://developers.google.com/search/docs/crawling-indexing/j
 
 ## Verification
 
-Run `npm run build && npm run check:seo`. A Chrome browser smoke test also passed across all ten routes, internal navigation/back, article links, mobile article width and saved theme with no React hydration errors. Live Vercel status codes and Search Console indexing still need checking after deployment.
+Run `npm run build && npm run check:seo`. Live Vercel status codes and Search Console indexing still need checking after deployment.
