@@ -22,7 +22,7 @@ export function getSeo(pathname, origin = siteUrl) {
   const [title, description] = pages[path] || (article ? [`${article.title} | Icon Academy Lahore`, article.excerpt] : ['Page Not Found | Icon Academy Lahore', 'This page could not be found. Explore Icon Academy programs and courses.']);
   const absolute = value => origin ? new URL(value, `${origin}/`).href : undefined;
   const url = absolute(path);
-  const image = absolute(article?.image || '/images/pakistani-students-hero.jpg');
+  const image = absolute(article?.image || (path === '/' ? '/images/icon-academy-home-hero.avif' : '/images/pakistani-students-hero.jpg'));
   const organization = {
     '@type': 'EducationalOrganization', '@id': absolute('/#academy'), name: academy.name,
     alternateName: 'The Icon Academy Lahore', url: absolute('/'), description: academy.description,

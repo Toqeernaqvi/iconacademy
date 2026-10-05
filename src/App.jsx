@@ -51,7 +51,7 @@ function App() {
               <div className="home-hero-points"><span><CheckCircle2 size={15} /> Guided learning</span><span><CheckCircle2 size={15} /> Practical skills</span><span><CheckCircle2 size={15} /> Career pathways</span></div>
             </div>
             <div className="home-hero-visual">
-              <div className="home-photo-frame"><img src="/images/pakistani-students-hero.jpg" alt="Illustrative scene of Pakistani students learning together at a laptop" width="1254" height="1254" fetchPriority="high" /><div className="home-photo-label"><strong>Learn skills.</strong><span>Build your future.</span></div></div>
+              <div className="home-photo-frame"><img src="/images/icon-academy-home-hero.avif" alt="Students learning together in a classroom" width="1200" height="747" fetchPriority="high" /><div className="home-photo-label"><strong>Learn skills.</strong><span>Build your future.</span></div></div>
               <div className="home-logo-medallion"><img src="/images/icon-academy-logo.png" alt="The Icon Academy crest" /></div>
             </div>
           </div>
