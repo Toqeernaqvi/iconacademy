@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Download, FilePlus2, Image, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
 import AdminShell from './AdminShell';
 import { readEvents, subscribeEvents, writeEvents } from './eventsStore';
-import { deleteFirebaseFile, uploadDataUrl, uploadEventImage } from './firebaseFiles';
 
 const blank = { title: '', category: 'Celebration', date: '', location: 'Rizwan Garden, Lahore', description: '', videoUrl: '' };
 function saveJson(filename, data) {
@@ -17,10 +16,13 @@ function resizeImage(file) {
       const image = new window.Image();
       image.onerror = () => reject(new Error('Please choose a valid image.'));
       image.onload = () => {
-        const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
+        const scale = Math.min(1, 1200 / Math.max(image.width, image.height));
         const canvas = document.createElement('canvas'); canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale);
         canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Could not prepare this image.')), 'image/jpeg', .78);
+        let result = canvas.toDataURL('image/jpeg', .72);
+        if (result.length > 950000) result = canvas.toDataURL('image/jpeg', .55);
+        if (result.length > 950000) return reject(new Error('Compressed image is still too large. Please choose a smaller photo.'));
+        resolve(result);
       };
       image.src = reader.result;
     };
@@ -59,29 +61,25 @@ export default function EventsAdmin({ onLogout }) {
     if (form.videoUrl.trim()) { try { new URL(form.videoUrl); } catch { return setMessage('Enter a complete video URL, including https://.'); } }
     try {
       const id = editing?.id || `event-${Date.now()}`;
-      const oldImage = editing?.image;
-      const uploadedImage = image ? await uploadEventImage(await resizeImage(image), id) : oldImage;
-      const eventItem = { ...form, id, title: form.title.trim(), category: form.category.trim() || 'Event', location: form.location.trim(), description: form.description.trim(), image: uploadedImage };
+      const storedImage = image ? await resizeImage(image) : editing?.image;
+      const eventItem = { ...form, id, title: form.title.trim(), category: form.category.trim() || 'Event', location: form.location.trim(), description: form.description.trim(), image: storedImage };
       const next = editing ? events.map(item => item.id === editing.id ? eventItem : item) : [eventItem, ...events];
       if (await commit(next)) {
-        if (image && oldImage && oldImage !== uploadedImage) void deleteFirebaseFile(oldImage);
         setMessage(editing ? 'Event updated in Firebase.' : 'Event published through Firebase.');
         reset();
-      } else if (image) {
-        void deleteFirebaseFile(uploadedImage);
       }
     } catch (error) { setMessage(error.message || 'Could not process this image.'); }
   };
   const startEdit = item => { setEditing(item); setForm({ title: item.title || '', category: item.category || 'Event', date: item.date || '', location: item.location || '', description: item.description || '', videoUrl: item.videoUrl || '' }); setImagePreview(item.image || ''); setImage(null); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const remove = async item => {
     if (!window.confirm(`Delete “${item.title}”?`)) return;
-    if (await commit(events.filter(event => event.id !== item.id))) { if (editing?.id === item.id) reset(); void deleteFirebaseFile(item.image); setMessage('Event deleted from Firebase.'); }
+    if (await commit(events.filter(event => event.id !== item.id))) { if (editing?.id === item.id) reset(); setMessage('Event deleted from Firebase.'); }
   };
   const importBackup = event => {
     const file = event.target.files?.[0]; if (!file) return;
     const reader = new FileReader();
     reader.onload = async () => {
-      try { const parsed = JSON.parse(reader.result); if (!Array.isArray(parsed) || parsed.some(item => !item.id || !item.title || !item.image)) throw new Error(); const prepared = await Promise.all(parsed.map(async item => item.image.startsWith('data:') ? { ...item, image: await uploadDataUrl(item.image, `events/${item.id}-restored-${Date.now()}.jpg`, 'image/jpeg') } : item)); if (await commit(prepared)) setMessage(`Restored ${prepared.length} events to Firebase.`); }
+      try { const parsed = JSON.parse(reader.result); if (!Array.isArray(parsed) || parsed.some(item => !item.id || !item.title || !item.image)) throw new Error(); if (await commit(parsed)) setMessage(`Restored ${parsed.length} events to Firebase.`); }
       catch { setMessage('This backup could not be read.'); }
       event.target.value = '';
     };
@@ -89,7 +87,7 @@ export default function EventsAdmin({ onLogout }) {
   };
   return <AdminShell active="events" title="Events" onLogout={onLogout}><main className="notes-admin-page events-admin-page"><div className="notes-admin-wrap">
     <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Events manager</h1><p>Add campus celebrations, photos and video links.</p></div><div className="notes-admin-count"><strong>{events.length}</strong><span>{events.length === 1 ? 'event' : 'events'} in Firebase</span></div></header>
-    <div className="notes-admin-notice"><strong>Live Firebase publishing</strong><span>Event details save in Realtime Database and photos upload to Firebase Storage. Public event pages update automatically.</span></div>
+    <div className="notes-admin-notice"><strong>Live Firebase publishing</strong><span>Event details and compressed photos save in Realtime Database. Public event pages update automatically.</span></div>
     <div className="notes-admin-grid"><section className="notes-admin-panel"><p className="course-eyebrow">{editing ? 'UPDATE EVENT' : 'ADD EVENT'}</p><h2>{editing ? 'Edit event' : 'Create an event'}</h2>
       <form className="notes-admin-form" onSubmit={submit}>
         <label>Event title<input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} placeholder="e.g. Teachers’ Day Celebration" required /></label>
@@ -106,6 +104,6 @@ export default function EventsAdmin({ onLogout }) {
     <section className="notes-admin-panel notes-admin-library"><div className="notes-admin-list-heading"><div><p className="course-eyebrow">EVENTS</p><h2>Published through Firebase</h2></div></div>
       {events.length ? <div className="notes-admin-list">{events.map(item => <article className="event-admin-row" key={item.id}><img src={item.image} alt="" /><div className="notes-admin-note-info"><strong>{item.title}</strong><small>{item.category}{item.date ? ` · ${item.date}` : ''}</small></div><div className="notes-admin-note-actions"><button type="button" title="Edit event" aria-label={`Edit ${item.title}`} onClick={() => startEdit(item)}><Pencil size={16} /></button><button type="button" title="Delete event" aria-label={`Delete ${item.title}`} onClick={() => remove(item)}><Trash2 size={16} /></button></div></article>)}</div> : <div className="notes-admin-empty"><CalendarDays size={21} /><p>No events yet. Add your first event.</p></div>}
     </section></div>
-    <section className="notes-admin-tools"><div><h2>Event backups</h2><p>Export event records and Firebase image URLs, or restore a previous JSON backup.</p></div><div className="notes-admin-tool-buttons"><button type="button" onClick={() => saveJson('icon-academy-events-backup.json', events)}><Download size={16} />Export backup</button><button type="button" onClick={() => importRef.current?.click()}><RotateCcw size={16} />Restore backup</button><input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importBackup} /></div></section>
+    <section className="notes-admin-tools"><div><h2>Event backups</h2><p>Export event records with their compressed photos, or restore a previous JSON backup.</p></div><div className="notes-admin-tool-buttons"><button type="button" onClick={() => saveJson('icon-academy-events-backup.json', events)}><Download size={16} />Export backup</button><button type="button" onClick={() => importRef.current?.click()}><RotateCcw size={16} />Restore backup</button><input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importBackup} /></div></section>
   </div></main></AdminShell>;
 }

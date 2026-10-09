@@ -1,6 +1,6 @@
 import { get, ref } from 'firebase/database';
 import { firebaseDatabase } from './firebaseClient';
-import { uploadDataUrl } from './firebaseFiles';
+import { writeNoteFile } from './firebaseDatabaseFiles';
 import { eventsFirebasePath, eventsStorageKey, initialEvents, writeEvents } from './eventsStore';
 import { expensesFirebasePath, expensesStorageKey, initialExpenses, writeExpenses } from './expensesStore';
 import { feesFirebasePath, feesStorageKey, initialFeeStudents, writeFeeStudents } from './feesStore';
@@ -18,18 +18,6 @@ function readLegacy(key) {
   }
 }
 
-function safeName(value) {
-  return String(value || 'record').replace(/[^a-zA-Z0-9._-]+/g, '-');
-}
-
-async function migrateEventFiles(events) {
-  return Promise.all(events.map(async item => {
-    if (!item.image?.startsWith('data:')) return item;
-    const image = await uploadDataUrl(item.image, `events/${safeName(item.id)}-migrated.jpg`, 'image/jpeg');
-    return { ...item, image };
-  }));
-}
-
 async function migrateNoteFiles(notes) {
   return Promise.all(notes.map(async item => {
     const source = item.fileData || item.url;
@@ -37,9 +25,9 @@ async function migrateNoteFiles(notes) {
       const { fileData, ...cleanItem } = item;
       return cleanItem;
     }
-    const url = await uploadDataUrl(source, `notes/${safeName(item.id)}/migrated-${safeName(item.fileName || `${item.title}.pdf`)}`, 'application/pdf');
+    await writeNoteFile(item.id, source, item.fileName || `${item.title}.pdf`);
     const { fileData, ...cleanItem } = item;
-    return { ...cleanItem, url, existingAsset: false };
+    return { ...cleanItem, url: '', databaseFile: true, existingAsset: false };
   }));
 }
 
@@ -60,7 +48,7 @@ async function migrateCollection({ path, storageKey, initialData, write, transfo
 
 export async function migrateLegacyAdminData() {
   const migrations = await Promise.all([
-    migrateCollection({ path: eventsFirebasePath, storageKey: eventsStorageKey, initialData: initialEvents, write: writeEvents, transform: migrateEventFiles }),
+    migrateCollection({ path: eventsFirebasePath, storageKey: eventsStorageKey, initialData: initialEvents, write: writeEvents }),
     migrateCollection({ path: notesFirebasePath, storageKey: notesStorageKey, initialData: initialNotes, write: writeNotes, transform: migrateNoteFiles }),
     migrateCollection({ path: feesFirebasePath, storageKey: feesStorageKey, initialData: initialFeeStudents, write: writeFeeStudents }),
     migrateCollection({ path: teachersFirebasePath, storageKey: teachersStorageKey, initialData: initialTeachers, write: writeTeachers }),

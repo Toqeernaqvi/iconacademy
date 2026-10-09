@@ -11,6 +11,10 @@
         "notes": {
           ".read": true,
           ".write": "auth != null && auth.uid === 'pOGN5R17jRXBAxUHHWcb2kTqn2w1'"
+        },
+        "noteFiles": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'pOGN5R17jRXBAxUHHWcb2kTqn2w1'"
         }
       },
       "admin": {

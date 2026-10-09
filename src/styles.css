@@ -347,6 +347,7 @@ html[data-theme='dark'] .notes-admin-message,
 html[data-theme='dark'] .notes-empty { color: #ddd8ce; }
 html[data-theme='dark'] .notes-admin-notice code { color: #f1eee9; background: #303132; }
 html[data-theme='dark'] .notes-subject a,
+html[data-theme='dark'] .notes-download-link,
 html[data-theme='dark'] .notes-help a,
 html[data-theme='dark'] .notes-admin-note-actions button { color: #e9e4da; border-color: #b5aea2; }
 html[data-theme='dark'] .home-mobile-menu { background: rgba(5,15,29,.98); }
@@ -1095,8 +1096,8 @@ html[data-theme='dark'] .admin-login-orbit { border-color: #ffffff12; }
 .notes-subject-top svg { color: var(--red); }
 .notes-subject h4 { margin: 24px 0 7px; color: var(--blue); font: 600 21px 'Space Grotesk', sans-serif; letter-spacing: -.04em; }
 .notes-subject p { margin: 0 0 18px; color: var(--muted); font-size: 11px; }
-.notes-subject a { display: inline-flex; align-items: center; gap: 8px; padding-bottom: 3px; color: var(--blue); border-bottom: 1px solid var(--blue); font-size: 11px; font-weight: 800; }
-.notes-subject a:hover { color: var(--red); border-color: var(--red); }
+.notes-subject a, .notes-download-link { display: inline-flex; align-items: center; gap: 8px; padding: 0 0 3px; color: var(--blue); background: none; border: 0; border-bottom: 1px solid var(--blue); font: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
+.notes-subject a:hover, .notes-download-link:hover { color: var(--red); border-color: var(--red); }
 .notes-empty { display: flex; align-items: center; gap: 18px; padding: 28px; background: #edf3fb; border: 1px solid var(--line); color: var(--blue); }
 .notes-empty > svg { flex: 0 0 auto; color: var(--red); }
 .notes-empty h4 { margin: 0 0 6px; font: 600 17px 'Space Grotesk', sans-serif; }

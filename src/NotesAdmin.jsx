@@ -3,7 +3,7 @@ import { ArrowDownToLine, Download, FilePlus2, FileText, Pencil, RotateCcw, Tras
 import AdminShell from './AdminShell';
 import { readNotes, subscribeNotes, writeNotes } from './notesStore';
 import { boardSubjectsByClass } from './content/boardSubjects';
-import { deleteFirebaseFile, uploadDataUrl, uploadNotePdf } from './firebaseFiles';
+import { deleteNoteFile, readFileAsDataUrl, readNoteFile, writeNoteFile } from './firebaseDatabaseFiles';
 
 const classOptions = [
   { id: '9', label: 'Class 9', year: 'Matric · Part I' },
@@ -47,7 +47,17 @@ export default function NotesAdmin({ onLogout }) {
     try { await writeNotes(next); return true; }
     catch { setNotes(previous); setMessage('Note Firebase par save nahi ho saka. Internet aur Firebase rules check karein.'); return false; }
   };
-  const onFile = event => setFile(event.target.files?.[0] || null);
+  const onFile = event => {
+    const selected = event.target.files?.[0] || null;
+    if (selected && selected.size > 4 * 1024 * 1024) {
+      setFile(null);
+      event.target.value = '';
+      setMessage('Please choose a PDF smaller than 4 MB.');
+      return;
+    }
+    setFile(selected);
+    setMessage('');
+  };
   const subjectGroups = getSubjectGroups(form.classId);
   const subjectOptions = subjectGroups.flatMap(group => group.options);
   const selectedSubject = subjectOptions.includes(form.subject) ? form.subject : 'Other';
@@ -62,20 +72,25 @@ export default function NotesAdmin({ onLogout }) {
     if (!editing && !file) return setMessage('Please choose a PDF to upload.');
     if (file && file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return setMessage('Please choose a PDF file.');
     const id = editing?.id || `note-${Date.now()}`;
-    const oldUrl = editing?.url;
     try {
-      const url = file ? await uploadNotePdf(file, id, file.name) : oldUrl;
-      const note = { id, classId: form.classId, subject, title, fileName: file?.name || editing?.fileName || `${title}.pdf`, url, existingAsset: file ? false : editing?.existingAsset || false };
+      if (file) await writeNoteFile(id, await readFileAsDataUrl(file), file.name);
+      const note = {
+        id,
+        classId: form.classId,
+        subject,
+        title,
+        fileName: file?.name || editing?.fileName || `${title}.pdf`,
+        url: file ? '' : editing?.url || '',
+        databaseFile: file ? true : editing?.databaseFile || false,
+        existingAsset: file ? false : editing?.existingAsset || false,
+      };
       const next = editing ? notes.map(item => item.id === editing.id ? note : item) : [...notes, note];
       if (await commit(next)) {
-        if (file && oldUrl && oldUrl !== url) void deleteFirebaseFile(oldUrl);
-        setMessage(editing ? 'Note updated in Firebase.' : 'PDF uploaded to Firebase Storage.');
+        setMessage(editing ? 'Note updated in Firebase.' : 'PDF saved in Realtime Database.');
         resetForm();
-      } else if (file) {
-        void deleteFirebaseFile(url);
       }
     } catch (error) {
-      setMessage(error.message || 'Could not upload this PDF to Firebase Storage.');
+      setMessage(error.message || 'Could not save this PDF in Firebase.');
     }
   };
   const resetForm = () => { setForm(newForm); setFile(null); setEditing(null); if (fileRef.current) fileRef.current.value = ''; };
@@ -89,10 +104,16 @@ export default function NotesAdmin({ onLogout }) {
     if (!window.confirm(`Delete “${note.title}”?`)) return;
     if (!await commit(notes.filter(item => item.id !== note.id))) return;
     if (editing?.id === note.id) resetForm();
-    void deleteFirebaseFile(note.url);
+    if (note.databaseFile) void deleteNoteFile(note.id);
     setMessage('Note deleted from Firebase.');
   };
-  const exportBackup = () => saveJson('icon-academy-notes-backup.json', notes);
+  const exportBackup = async () => {
+    try {
+      const backup = await Promise.all(notes.map(async note => note.databaseFile ? { ...note, fileData: await readNoteFile(note.id) } : note));
+      saveJson('icon-academy-notes-backup.json', backup);
+      setMessage('Downloaded notes backup with database PDFs.');
+    } catch { setMessage('Could not prepare the notes backup.'); }
+  };
   const importBackup = event => {
     const backup = event.target.files?.[0];
     if (!backup) return;
@@ -104,9 +125,9 @@ export default function NotesAdmin({ onLogout }) {
         const prepared = await Promise.all(parsed.map(async note => {
           const source = note.fileData || note.url;
           if (!source?.startsWith('data:')) { const { fileData, ...cleanNote } = note; return cleanNote; }
-          const url = await uploadDataUrl(source, `notes/${note.id}/restored-${Date.now()}-${note.fileName || 'note.pdf'}`, 'application/pdf');
+          await writeNoteFile(note.id, source, note.fileName || 'note.pdf');
           const { fileData, ...cleanNote } = note;
-          return { ...cleanNote, url, existingAsset: false };
+          return { ...cleanNote, url: '', databaseFile: true, existingAsset: false };
         }));
         if (await commit(prepared)) setMessage(`Restored ${prepared.length} notes to Firebase.`);
       } catch { setMessage('That backup file could not be read.'); }
@@ -114,8 +135,12 @@ export default function NotesAdmin({ onLogout }) {
     };
     reader.readAsText(backup);
   };
-  const downloadNote = note => {
-    const link = document.createElement('a'); link.href = note.url; link.download = note.fileName; link.target = '_blank'; link.rel = 'noreferrer'; link.click();
+  const downloadNote = async note => {
+    try {
+      const url = note.databaseFile ? await readNoteFile(note.id) : note.fileData || note.url;
+      if (!url) throw new Error();
+      const link = document.createElement('a'); link.href = url; link.download = note.fileName; link.target = '_blank'; link.rel = 'noreferrer'; link.click();
+    } catch { setMessage('PDF could not be downloaded from Firebase.'); }
   };
   const exportManifest = () => {
     saveJson('icon-academy-notes-manifest.json', notes);
@@ -125,7 +150,7 @@ export default function NotesAdmin({ onLogout }) {
   return <AdminShell active="notes" title="Study Notes" onLogout={onLogout}><main className="notes-admin-page">
     <div className="notes-admin-wrap">
       <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Notes manager</h1><p>Organize study resources by class, subject and title.</p></div><div className="notes-admin-count"><strong>{notes.length}</strong><span>{notes.length === 1 ? 'note' : 'notes'} in Firebase</span></div></header>
-      <div className="notes-admin-notice"><strong>Live Firebase publishing</strong><span>Note details save in Realtime Database and PDFs upload to Firebase Storage. Public notes update automatically.</span></div>
+      <div className="notes-admin-notice"><strong>Live Firebase publishing</strong><span>Note details and PDFs save in Realtime Database. PDFs must be smaller than 4 MB.</span></div>
       <div className="notes-admin-grid">
         <section className="notes-admin-panel">
           <p className="course-eyebrow">{editing ? 'UPDATE RESOURCE' : 'ADD RESOURCE'}</p><h2>{editing ? 'Edit this note' : 'Upload a PDF'}</h2>

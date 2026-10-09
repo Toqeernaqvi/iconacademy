@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowDownToLine, BookOpen, FileText, GraduationCap } from 'lucide-react';
 import { academy } from './content/siteContent';
 import { readNotes, subscribeNotes } from './notesStore';
+import { readNoteFile } from './firebaseDatabaseFiles';
 
 const classes = [
   { id: '9', label: 'Class 9', year: 'Matric · Part I', notes: [] },
@@ -12,7 +13,21 @@ const classes = [
 
 export default function SpecialNotes() {
   const [notes, setNotes] = useState(readNotes);
+  const [downloadError, setDownloadError] = useState('');
   useEffect(() => subscribeNotes(setNotes), []);
+  const downloadNote = async note => {
+    try {
+      setDownloadError('');
+      const url = note.databaseFile ? await readNoteFile(note.id) : note.fileData || note.url;
+      if (!url) throw new Error();
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = note.fileName || `${note.title}.pdf`;
+      link.target = '_blank';
+      link.rel = 'noreferrer';
+      link.click();
+    } catch { setDownloadError('PDF download nahi ho saka. Please try again.'); }
+  };
   return <main className="notes-page">
     <section className="notes-hero">
       <div className="section-wrap notes-hero-inner">
@@ -30,9 +45,10 @@ export default function SpecialNotes() {
         if (!classNotes.length) return null;
         return <section className="notes-class-section" key={item.id} aria-labelledby={`notes-class-${item.id}`}>
           <div className="notes-results-heading"><div><span className="notes-class-number">{item.id}</span><div><p className="course-eyebrow">{item.year}</p><h3 id={`notes-class-${item.id}`}>{item.label} notes</h3></div></div><span>{classNotes.length} {classNotes.length === 1 ? 'resource' : 'resources'}</span></div>
-          <div className="notes-subject-grid">{classNotes.map((note, index) => <article className="notes-subject" key={note.id}><div className="notes-subject-top"><span>{String(index + 1).padStart(2, '0')}</span><FileText size={20} /></div><h4>{note.subject}</h4><p>{note.title}</p><a href={note.fileData || note.url} download={note.fileName || true}>Download PDF <ArrowDownToLine size={15} /></a></article>)}</div>
+          <div className="notes-subject-grid">{classNotes.map((note, index) => <article className="notes-subject" key={note.id}><div className="notes-subject-top"><span>{String(index + 1).padStart(2, '0')}</span><FileText size={20} /></div><h4>{note.subject}</h4><p>{note.title}</p><button className="notes-download-link" type="button" onClick={() => downloadNote(note)}>Download PDF <ArrowDownToLine size={15} /></button></article>)}</div>
         </section>;
       })}
+      {downloadError && <p className="notes-help" role="alert">{downloadError}</p>}
       <p className="notes-help">Looking for notes for another class or subject? <a href={`https://wa.me/${academy.whatsappNumber}?text=${encodeURIComponent('Assalam-o-Alaikum, I am looking for Icon Academy study notes.')}`} target="_blank" rel="noreferrer">Ask the academy</a>.</p>
     </section>
     <section className="notes-how"><div className="section-wrap notes-how-inner"><div><p className="course-eyebrow">HOW IT WORKS</p><h2>Pick a class.<br /><em>Find your subject.</em></h2></div><p>Browse the class-wise resources above and download the subject PDF you need. We’ll keep adding useful material as it becomes available.</p></div></section>
