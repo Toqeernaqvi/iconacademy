@@ -7,7 +7,7 @@ import useSiteMotion from './useSiteMotion';
 import ScrollProgress from './ScrollProgress';
 
 
-export default function SiteLayout({ children, navigate }) {
+export default function SiteLayout({ children, navigate, adminMode = false }) {
   const siteRef = useRef(null);
   useSiteMotion(siteRef);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,6 +30,7 @@ export default function SiteLayout({ children, navigate }) {
     }
     navigate(`/#${id}`);
   };
+  if (adminMode) return <div ref={siteRef} className="admin-site-mode">{children}</div>;
   return <div ref={siteRef} className="home-page-v2" onClick={(event) => {
     if (event.target.closest('a')) setMenuOpen(false);
   }}>

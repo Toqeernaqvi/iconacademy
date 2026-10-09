@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowLeft, Download, FilePlus2, FileText, LogOut, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
+import { ArrowDownToLine, Download, FilePlus2, FileText, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
+import AdminShell from './AdminShell';
 import { readNotes, writeNotes } from './notesStore';
 import { boardSubjectsByClass } from './content/boardSubjects';
 
@@ -114,9 +115,8 @@ export default function NotesAdmin({ onLogout }) {
     setMessage('Downloaded manifest and note files. Put PDFs in public/notes and replace src/content/notes.json, then redeploy to publish.');
   };
 
-  return <main className="notes-admin-page">
-    <div className="section-wrap notes-admin-wrap">
-      <a className="notes-admin-back" href="/special-notes"><ArrowLeft size={16} /> View public notes page</a><a className="admin-manager-dashboard-link" href="/admin">Admin dashboard</a><button className="admin-manager-logout" type="button" onClick={onLogout}><LogOut size={14} /> Sign out</button>
+  return <AdminShell active="notes" title="Study Notes" onLogout={onLogout}><main className="notes-admin-page">
+    <div className="notes-admin-wrap">
       <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Notes manager</h1><p>Organize study resources by class, subject and title.</p></div><div className="notes-admin-count"><strong>{notes.length}</strong><span>{notes.length === 1 ? 'note' : 'notes'} in this browser</span></div></header>
       <div className="notes-admin-notice"><strong>Browser-only storage</strong><span>Changes stay in this browser. Export backups regularly. To publish updates, export website files, add the PDFs under <code>public/notes</code> and redeploy.</span></div>
       <div className="notes-admin-grid">
@@ -142,5 +142,5 @@ export default function NotesAdmin({ onLogout }) {
       </div>
       <section className="notes-admin-tools"><div><h2>Backup & publish</h2><p>Keep a copy of your browser library or export files for the website.</p></div><div className="notes-admin-tool-buttons"><button type="button" onClick={exportBackup}><Download size={16} />Export backup</button><button type="button" onClick={() => importRef.current?.click()}><RotateCcw size={16} />Restore backup</button><button type="button" onClick={exportWebsiteFiles}><ArrowDownToLine size={16} />Export for website</button><input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importBackup} /></div></section>
     </div>
-  </main>;
+  </main></AdminShell>;
 }

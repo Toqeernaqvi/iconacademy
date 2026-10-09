@@ -14,6 +14,9 @@ import SpecialNotes from './SpecialNotes';
 import NotesAdmin from './NotesAdmin';
 import EventsPage from './EventsPage';
 import EventsAdmin from './EventsAdmin';
+import FeesAdmin from './FeesAdmin';
+import TeachersAdmin from './TeachersAdmin';
+import ExpensesAdmin from './ExpensesAdmin';
 import AdminDashboard from './AdminDashboard';
 import AdminGate from './AdminGate';
 
@@ -59,6 +62,9 @@ export default function Website({ initialPath = '/' }) {
     : /^\/online-tutoring\/?$/.test(pathname) ? <OnlineTutoring />
     : /^\/events\/?$/.test(pathname) ? <EventsPage />
     : /^\/admin\/events\/?$/.test(pathname) ? <EventsAdmin />
+    : /^\/admin\/fees\/?$/.test(pathname) ? <FeesAdmin />
+    : /^\/admin\/teachers\/?$/.test(pathname) ? <TeachersAdmin />
+    : /^\/admin\/expenses\/?$/.test(pathname) ? <ExpensesAdmin />
     : /^\/admin\/?$/.test(pathname) ? <AdminDashboard />
     : /^\/our-team\/?$/.test(pathname) ? <OurTeam /> : /^\/special-notes\/?$/.test(pathname) ? <SpecialNotes /> : /^\/admin\/notes\/?$/.test(pathname) ? <NotesAdmin /> : pathname === "/" ? <App /> : <main className="section-wrap academic-hero"><h1>Page not found</h1><p>The page you requested does not exist.</p><a href="/">Return to Icon Academy home</a></main>;
   const protectedPage = pathname.startsWith('/admin') ? <AdminGate>{page}</AdminGate> : page;
@@ -87,11 +93,11 @@ export default function Website({ initialPath = '/' }) {
     const link = event.target.closest('a');
     if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
     const url = new URL(link.href);
-    if (url.origin !== window.location.origin || !/^\/(kids\/?|matric\/?|intermediate\/?|computer-courses\/?|our-team\/?|online-tutoring\/?|events\/?)?$/.test(url.pathname)) return;
+    if (url.origin !== window.location.origin || !/^\/(kids\/?|matric\/?|intermediate\/?|computer-courses\/?|our-team\/?|online-tutoring\/?|events\/?|admin\/?|admin\/events\/?|admin\/notes\/?|admin\/fees\/?|admin\/teachers\/?|admin\/expenses\/?)?$/.test(url.pathname)) return;
     event.preventDefault();
     navigate(url.href);
   }}>
-    <SiteLayout navigate={navigate}><div className="site-route-entry" key={pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{protectedPage}</div></SiteLayout>
+    <SiteLayout navigate={navigate} adminMode={pathname.startsWith('/admin')}><div className="site-route-entry" key={pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{protectedPage}</div></SiteLayout>
     </div>
   </>;
 }

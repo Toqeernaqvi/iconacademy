@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
-import { ArrowLeft, CalendarDays, Download, FilePlus2, Image, LogOut, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
+import { CalendarDays, Download, FilePlus2, Image, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
+import AdminShell from './AdminShell';
 import { readEvents, writeEvents } from './eventsStore';
 
 const blank = { title: '', category: 'Celebration', date: '', location: 'Rizwan Garden, Lahore', description: '', videoUrl: '' };
@@ -74,8 +75,7 @@ export default function EventsAdmin({ onLogout }) {
     };
     reader.readAsText(file);
   };
-  return <main className="notes-admin-page events-admin-page"><div className="section-wrap notes-admin-wrap">
-    <a className="notes-admin-back" href="/events"><ArrowLeft size={16} /> View events page</a><a className="admin-manager-dashboard-link" href="/admin">Admin dashboard</a><a className="events-admin-notes-link" href="/admin/notes">Open notes manager</a><button className="admin-manager-logout" type="button" onClick={onLogout}><LogOut size={14} /> Sign out</button>
+  return <AdminShell active="events" title="Events" onLogout={onLogout}><main className="notes-admin-page events-admin-page"><div className="notes-admin-wrap">
     <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Events manager</h1><p>Add campus celebrations, photos and video links.</p></div><div className="notes-admin-count"><strong>{events.length}</strong><span>{events.length === 1 ? 'event' : 'events'} in this browser</span></div></header>
     <div className="notes-admin-notice"><strong>Browser-only storage</strong><span>Updates appear on this device. Export a backup regularly. To publish on the live website, update <code>src/content/events.json</code> and add photos under <code>public/images/events</code>, then redeploy.</span></div>
     <div className="notes-admin-grid"><section className="notes-admin-panel"><p className="course-eyebrow">{editing ? 'UPDATE EVENT' : 'ADD EVENT'}</p><h2>{editing ? 'Edit event' : 'Create an event'}</h2>
@@ -95,5 +95,5 @@ export default function EventsAdmin({ onLogout }) {
       {events.length ? <div className="notes-admin-list">{events.map(item => <article className="event-admin-row" key={item.id}><img src={item.image} alt="" /><div className="notes-admin-note-info"><strong>{item.title}</strong><small>{item.category}{item.date ? ` · ${item.date}` : ''}</small></div><div className="notes-admin-note-actions"><button type="button" title="Edit event" aria-label={`Edit ${item.title}`} onClick={() => startEdit(item)}><Pencil size={16} /></button><button type="button" title="Delete event" aria-label={`Delete ${item.title}`} onClick={() => remove(item)}><Trash2 size={16} /></button></div></article>)}</div> : <div className="notes-admin-empty"><CalendarDays size={21} /><p>No events yet. Add your first event.</p></div>}
     </section></div>
     <section className="notes-admin-tools"><div><h2>Event backups</h2><p>Export the event list, including uploaded photos, or restore a previous backup.</p></div><div className="notes-admin-tool-buttons"><button type="button" onClick={() => saveJson('icon-academy-events-backup.json', events)}><Download size={16} />Export backup</button><button type="button" onClick={() => importRef.current?.click()}><RotateCcw size={16} />Restore backup</button><input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importBackup} /></div></section>
-  </div></main>;
+  </div></main></AdminShell>;
 }
