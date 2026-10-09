@@ -56,7 +56,6 @@ export default function AdminDashboard({ onLogout }) {
 
     const monthlyExpenses = expenses.filter(expense => monthFromDate(expense.dueDate || expense.paidDate) === selectedMonth);
     const expenseTotal = monthlyExpenses.reduce((total, expense) => total + Number(expense.amount || 0), 0);
-    const expensePaid = monthlyExpenses.reduce((total, expense) => total + (expense.status === 'paid' ? Number(expense.amount || 0) : 0), 0);
 
     return {
       ...fees,
@@ -65,7 +64,7 @@ export default function AdminDashboard({ onLogout }) {
       salaryPaid: salaries.paid,
       salaryRemaining: Math.max(0, salaries.total - salaries.paid),
       expenseTotal,
-      expensePaid,
+      totalExpenses: expenseTotal + salaries.total,
     };
   }, [expenses, feeStudents, selectedMonth, teachers]);
   const recentEvents = events.slice(0, 3);
@@ -79,7 +78,7 @@ export default function AdminDashboard({ onLogout }) {
         <a href="/admin/fees" className="is-collected"><span><WalletCards size={19} /></span><small>FEES COLLECTED</small><strong>{money(finance.collected)}</strong><em>Received this month</em></a>
         <a href="/admin/fees" className={finance.remaining ? 'is-remaining has-balance' : 'is-remaining'}><span><Clock3 size={19} /></span><small>FEES REMAINING</small><strong>{money(finance.remaining)}</strong><em>{finance.remaining ? 'Still to collect' : 'All fees collected'}</em></a>
         <a href="/admin/teachers" className="is-salary"><span><UsersRound size={19} /></span><small>TEACHER SALARIES</small><strong>{money(finance.salaryTotal)}</strong><em>{money(finance.salaryPaid)} paid | {money(finance.salaryRemaining)} remaining</em></a>
-        <a href="/admin/expenses" className="is-expense"><span><ReceiptText size={19} /></span><small>TOTAL EXPENSES</small><strong>{money(finance.expenseTotal)}</strong><em>{money(finance.expensePaid)} paid</em></a>
+        <a href="/admin/expenses" className="is-expense"><span><ReceiptText size={19} /></span><small>TOTAL EXPENSES</small><strong>{money(finance.totalExpenses)}</strong><em>{money(finance.expenseTotal)} academy + {money(finance.salaryTotal)} salaries</em></a>
       </div>
     </section>
     <section className="admin-dashboard-stats" aria-label="Admin overview"><article><span className="admin-stat-icon event"><CalendarDays size={18} /></span><div><small>ACADEMY EVENTS</small><strong>{events.length}</strong><span>{events.length === 1 ? 'event in your library' : 'events in your library'}</span></div><a href="/admin/events" aria-label="Manage events"><ArrowRight size={17} /></a></article><article><span className="admin-stat-icon note"><BookOpen size={18} /></span><div><small>STUDY RESOURCES</small><strong>{notes.length}</strong><span>{notes.length === 1 ? 'note in your library' : 'notes in your library'}</span></div><a href="/admin/notes" aria-label="Manage notes"><ArrowRight size={17} /></a></article><article><span className="admin-stat-icon fees"><WalletCards size={18} /></span><div><small>FEE STUDENTS</small><strong>{feeStudents.length}</strong><span>{feeStudents.length === 1 ? 'student in fee register' : 'students in fee register'}</span></div><a href="/admin/fees" aria-label="Manage fees"><ArrowRight size={17} /></a></article><article><span className="admin-stat-icon teachers"><UsersRound size={18} /></span><div><small>TEACHERS</small><strong>{teachers.length}</strong><span>{teachers.length === 1 ? 'teacher in salary register' : 'teachers in salary register'}</span></div><a href="/admin/teachers" aria-label="Manage teachers"><ArrowRight size={17} /></a></article><article><span className="admin-stat-icon expenses"><ReceiptText size={18} /></span><div><small>EXPENSES</small><strong>{expenses.length}</strong><span>{expenses.length === 1 ? 'expense in register' : 'expenses in register'}</span></div><a href="/admin/expenses" aria-label="Manage expenses"><ArrowRight size={17} /></a></article></section>
