@@ -97,7 +97,7 @@ export default function Website({ initialPath = '/' }) {
     event.preventDefault();
     navigate(url.href);
   }}>
-    <SiteLayout navigate={navigate} adminMode={pathname.startsWith('/admin')}><div className="site-route-entry" key={pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{protectedPage}</div></SiteLayout>
+    <SiteLayout navigate={navigate} adminMode={pathname.startsWith('/admin')}><div className="site-route-entry" key={pathname.startsWith('/admin') ? '/admin' : pathname.startsWith('/blog/') ? '/' : pathname.replace(/\/$/, '') || '/'}>{protectedPage}</div></SiteLayout>
     </div>
   </>;
 }

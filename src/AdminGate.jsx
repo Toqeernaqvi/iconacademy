@@ -1,5 +1,5 @@
 import { cloneElement, useEffect, useState } from 'react';
-import { ArrowRight, Eye, EyeOff, LockKeyhole, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, ShieldCheck, Sparkles } from 'lucide-react';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { firebaseAuth } from './firebaseClient';
 import { migrateLegacyAdminData } from './firebaseMigration';
@@ -18,6 +18,7 @@ function authMessage(error) {
 export default function AdminGate({ children }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [checking, setChecking] = useState(true);
+  const [authReady, setAuthReady] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,12 +28,14 @@ export default function AdminGate({ children }) {
       if (!user) {
         setAuthenticated(false);
         setChecking(false);
+        setAuthReady(true);
         return;
       }
       if (user.uid !== adminUid) {
         await signOut(firebaseAuth);
         setMessage('Yeh Firebase account Icon Academy admin ke liye authorized nahi hai.');
         setChecking(false);
+        setAuthReady(true);
         return;
       }
       try {
@@ -45,6 +48,7 @@ export default function AdminGate({ children }) {
           : 'Firebase data initialize nahi ho saka. Realtime Database aur internet connection check karein.');
       } finally {
         setChecking(false);
+        setAuthReady(true);
       }
     });
   }, []);
@@ -58,6 +62,7 @@ export default function AdminGate({ children }) {
     }
   };
   const logout = async () => { await signOut(firebaseAuth); setPassword(''); setEmail(''); };
+  if (!authReady) return <main className="admin-auth-loading" aria-live="polite"><img src="/images/icon-academy-logo.png" alt="The Icon Academy" /><LoaderCircle size={24} /><span>Securing workspace...</span></main>;
   if (authenticated) return <>{cloneElement(children, { onLogout: logout })}</>;
   return <main className="admin-login-page"><div className="admin-login-orbit admin-login-orbit-one" /><div className="admin-login-orbit admin-login-orbit-two" />
     <section className="admin-login-card"><a href="/" className="admin-login-brand"><img src="/images/icon-academy-logo.png" alt="" /><span><strong>THE ICON ACADEMY</strong><small>LAHORE · CONTENT DESK</small></span></a>

@@ -958,6 +958,10 @@ html[data-theme='dark'] .review-toggle:hover { background-color: #393b3e; border
 
 /* Content administration dashboard */
 .admin-login-page { position: relative; min-height: calc(100vh - 230px); display: grid; place-items: center; overflow: hidden; padding: 60px 20px 70px; background: radial-gradient(ellipse at 18% 16%, #dfe9f8 0, transparent 34%), #f7f9fc; isolation: isolate; }
+.admin-auth-loading { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px; color: #61718a; background: #f7f9fc; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.admin-auth-loading img { width: 58px; height: 58px; object-fit: contain; }
+.admin-auth-loading svg { color: var(--blue); animation: admin-auth-spin .8s linear infinite; }
+@keyframes admin-auth-spin { to { transform: rotate(360deg); } }
 .admin-login-orbit { position: absolute; z-index: -1; width: 500px; height: 500px; border: 1px solid rgba(10,57,145,.09); border-radius: 50%; pointer-events: none; }.admin-login-orbit-one { top: -260px; right: -70px; box-shadow: 0 0 0 45px rgba(10,57,145,.025), 0 0 0 95px rgba(10,57,145,.02); }.admin-login-orbit-two { bottom: -360px; left: -180px; width: 620px; height: 620px; }
 .admin-login-card { width: min(100%, 450px); padding: 34px 40px 30px; background: white; border: 1px solid rgba(10,57,145,.13); border-radius: 17px; box-shadow: 0 24px 70px rgba(5,43,109,.1); }
 .admin-login-brand { display: inline-flex; align-items: center; gap: 11px; color: var(--blue); }.admin-login-brand img { width: 47px; height: 47px; object-fit: contain; }.admin-login-brand > span { display: grid; gap: 4px; }.admin-login-brand strong { font: 700 10px 'DM Mono', monospace; letter-spacing: .08em; }.admin-login-brand small { color: var(--muted); font: 600 8px 'DM Mono', monospace; letter-spacing: .13em; }
@@ -1000,6 +1004,7 @@ html[data-theme='dark'] .admin-dashboard-storage { color: #c1d2e8; background: #
 html[data-theme='dark'] .admin-dashboard-storage strong { color: #e3edfb; }
 html[data-theme='dark'] .admin-recent-row { color: #d9e6f5; border-color: #293b53; }
 html[data-theme='dark'] .admin-login-page { background: radial-gradient(ellipse at 18% 16%, #142e4a 0, transparent 34%), #111315; }
+html[data-theme='dark'] .admin-auth-loading { color: #a9b9cd; background: #0b111b; }
 html[data-theme='dark'] .admin-login-card { background: #0d2036; border-color: #283e5c; }
 html[data-theme='dark'] .admin-login-heading h1, html[data-theme='dark'] .admin-login-brand { color: #e3edfb; }
 html[data-theme='dark'] .admin-login-heading > span { color: #d9e6f5; background: #1b3553; }
