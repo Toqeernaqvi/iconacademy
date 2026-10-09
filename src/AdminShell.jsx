@@ -20,6 +20,7 @@ import { readFeeStudents, subscribeFeeStudents } from './feesStore';
 import { readNotes, subscribeNotes } from './notesStore';
 import { readTeachers, subscribeTeachers } from './teachersStore';
 import { subscribeFirebaseConnection } from './firebaseStore';
+import ThemeToggle from './ThemeToggle';
 
 const navigation = [
   {
@@ -145,6 +146,7 @@ export default function AdminShell({ active, title, onLogout, children }) {
           <div><small>ADMIN PORTAL</small><strong>{title}</strong></div>
         </div>
         <div className="admin-topbar-meta">
+          <ThemeToggle />
           <span className={`admin-storage-status${firebaseConnected === false ? ' is-offline' : ''}`}>{firebaseConnected === false ? <CloudOff size={15} /> : <Cloud size={15} />}<span><small>DATABASE</small><strong>{firebaseConnected === null ? 'Connecting...' : firebaseConnected ? 'Firebase Cloud' : 'Offline'}</strong></span></span>
           <span className="admin-topbar-date"><small>TODAY</small><strong>{today}</strong></span>
         </div>

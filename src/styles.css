@@ -1613,6 +1613,10 @@ html[data-theme='dark'] .fee-table tr.is-late td { background: #351a22; border-b
 .admin-topbar-title small, .admin-topbar-meta small { color: #8b98aa; font: 700 8px 'DM Mono', monospace; }
 .admin-topbar-title strong { overflow: hidden; color: #182236; font: 700 16px 'Space Grotesk', sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .admin-topbar-meta { display: flex; align-items: center; gap: 22px; }
+.admin-topbar-meta .theme-toggle { flex-basis: 54px; width: 54px; height: 30px; }
+.admin-topbar-meta .theme-toggle::before { width: 22px; height: 22px; }
+.admin-topbar-meta .theme-toggle svg { top: 7px; }
+html[data-theme='dark'] .admin-topbar-meta .theme-toggle::before { transform: translateX(24px); }
 .admin-storage-status { display: flex; align-items: center; gap: 8px; color: #2d7655; }
 .admin-storage-status.is-offline { color: #b43a45; }
 .admin-storage-status > span, .admin-topbar-date { display: grid; gap: 2px; }
