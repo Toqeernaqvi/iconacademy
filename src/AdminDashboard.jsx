@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, BookOpen, CalendarDays, FileText, Plus, ReceiptText, Sparkles, UsersRound, WalletCards } from 'lucide-react';
 import AdminShell from './AdminShell';
-import { readNotes } from './notesStore';
-import { readEvents } from './eventsStore';
-import { readFeeStudents } from './feesStore';
-import { readTeachers } from './teachersStore';
-import { readExpenses } from './expensesStore';
+import { readNotes, subscribeNotes } from './notesStore';
+import { readEvents, subscribeEvents } from './eventsStore';
+import { readFeeStudents, subscribeFeeStudents } from './feesStore';
+import { readTeachers, subscribeTeachers } from './teachersStore';
+import { readExpenses, subscribeExpenses } from './expensesStore';
 
 export default function AdminDashboard({ onLogout }) {
   const [notes, setNotes] = useState(readNotes);
@@ -14,21 +14,8 @@ export default function AdminDashboard({ onLogout }) {
   const [teachers, setTeachers] = useState(readTeachers);
   const [expenses, setExpenses] = useState(readExpenses);
   useEffect(() => {
-    const refresh = () => { setNotes(readNotes()); setEvents(readEvents()); setFeeStudents(readFeeStudents()); setTeachers(readTeachers()); setExpenses(readExpenses()); };
-    window.addEventListener('icon-academy-notes-updated', refresh);
-    window.addEventListener('icon-academy-events-updated', refresh);
-    window.addEventListener('icon-academy-fees-updated', refresh);
-    window.addEventListener('icon-academy-teachers-updated', refresh);
-    window.addEventListener('icon-academy-expenses-updated', refresh);
-    window.addEventListener('storage', refresh);
-    return () => {
-      window.removeEventListener('icon-academy-notes-updated', refresh);
-      window.removeEventListener('icon-academy-events-updated', refresh);
-      window.removeEventListener('icon-academy-fees-updated', refresh);
-      window.removeEventListener('icon-academy-teachers-updated', refresh);
-      window.removeEventListener('icon-academy-expenses-updated', refresh);
-      window.removeEventListener('storage', refresh);
-    };
+    const subscriptions = [subscribeNotes(setNotes), subscribeEvents(setEvents), subscribeFeeStudents(setFeeStudents), subscribeTeachers(setTeachers), subscribeExpenses(setExpenses)];
+    return () => subscriptions.forEach(unsubscribe => unsubscribe());
   }, []);
   const recentEvents = events.slice(0, 3);
   const recentNotes = notes.slice(-3).reverse();
@@ -39,6 +26,6 @@ export default function AdminDashboard({ onLogout }) {
       <div className="admin-dashboard-recent"><section className="admin-recent-panel"><div className="admin-recent-heading"><div><p className="course-eyebrow">LATEST</p><h3>Recent events</h3></div><a href="/admin/events">View all <ArrowRight size={14} /></a></div>{recentEvents.length ? recentEvents.map(item => <a className="admin-recent-row" href="/admin/events" key={item.id}><img src={item.image} alt="" /><span><strong>{item.title}</strong><small>{item.category || 'Academy event'}</small></span><ArrowRight size={15} /></a>) : <p className="admin-empty-hint">Events you add will show here.</p>}</section>
       <section className="admin-recent-panel"><div className="admin-recent-heading"><div><p className="course-eyebrow">LATEST</p><h3>Recent study notes</h3></div><a href="/admin/notes">View all <ArrowRight size={14} /></a></div>{recentNotes.length ? recentNotes.map(item => <a className="admin-recent-row admin-note-row" href="/admin/notes" key={item.id}><span className="admin-recent-note-icon"><FileText size={18} /></span><span><strong>{item.title}</strong><small>{item.subject} - Class {item.classId}</small></span><ArrowRight size={15} /></a>) : <p className="admin-empty-hint">Study resources you add will show here.</p>}</section></div>
     </section>
-    <aside className="admin-dashboard-storage"><span><Sparkles size={16} /></span><p><strong>Local admin desk</strong><br />Updates are saved in this browser. Use each manager's backup tools to keep a manual file copy.</p></aside>
+    <aside className="admin-dashboard-storage"><span><Sparkles size={16} /></span><p><strong>Firebase cloud database</strong><br />Updates synchronize across devices. Export tools remain available for an additional manual backup.</p></aside>
     </main></AdminShell>;
 }

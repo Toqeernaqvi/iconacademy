@@ -1,19 +1,16 @@
 import teachersManifest from './content/teachers.json';
+import { createRealtimeCollection } from './firebaseStore';
 
 export const teachersStorageKey = 'icon-academy-teachers-v1';
 export const initialTeachers = teachersManifest;
+export const teachersFirebasePath = 'academy/admin/teachers';
 
-export function readTeachers() {
-  if (typeof window === 'undefined') return initialTeachers;
-  try {
-    const stored = window.localStorage.getItem(teachersStorageKey);
-    return stored ? JSON.parse(stored) : initialTeachers;
-  } catch {
-    return initialTeachers;
-  }
-}
+const teachersStore = createRealtimeCollection({
+  path: teachersFirebasePath,
+  eventName: 'icon-academy-teachers-updated',
+  initialData: initialTeachers,
+});
 
-export function writeTeachers(teachers) {
-  window.localStorage.setItem(teachersStorageKey, JSON.stringify(teachers));
-  window.dispatchEvent(new Event('icon-academy-teachers-updated'));
-}
+export const readTeachers = teachersStore.read;
+export const subscribeTeachers = teachersStore.subscribe;
+export const writeTeachers = teachersStore.write;

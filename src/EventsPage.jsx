@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowUpRight, CalendarDays, Camera, Heart, MapPin, Play, Sparkles } from 'lucide-react';
 import { academy } from './content/siteContent';
-import { readEvents } from './eventsStore';
+import { readEvents, subscribeEvents } from './eventsStore';
 
 function eventDate(value) {
   if (!value) return 'Campus celebration';
@@ -11,12 +11,7 @@ function eventDate(value) {
 
 export default function EventsPage() {
   const [events, setEvents] = useState(readEvents);
-  useEffect(() => {
-    const refresh = () => setEvents(readEvents());
-    window.addEventListener('icon-academy-events-updated', refresh);
-    window.addEventListener('storage', refresh);
-    return () => { window.removeEventListener('icon-academy-events-updated', refresh); window.removeEventListener('storage', refresh); };
-  }, []);
+  useEffect(() => subscribeEvents(setEvents), []);
   return <main className="events-page">
     <section className="events-hero"><div className="section-wrap">
       <a className="events-back" href="/"><ArrowLeft size={16} /> Back to home</a>

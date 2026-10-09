@@ -1,19 +1,17 @@
 import eventManifest from './content/events.json';
+import { createRealtimeCollection } from './firebaseStore';
 
 export const eventsStorageKey = 'icon-academy-events-v1';
 export const initialEvents = eventManifest;
+export const eventsFirebasePath = 'academy/public/events';
 
-export function readEvents() {
-  if (typeof window === 'undefined') return initialEvents;
-  try {
-    const stored = window.localStorage.getItem(eventsStorageKey);
-    return stored ? JSON.parse(stored) : initialEvents;
-  } catch {
-    return initialEvents;
-  }
-}
+const eventsStore = createRealtimeCollection({
+  path: eventsFirebasePath,
+  eventName: 'icon-academy-events-updated',
+  initialData: initialEvents,
+  useInitialWhenEmpty: true,
+});
 
-export function writeEvents(events) {
-  window.localStorage.setItem(eventsStorageKey, JSON.stringify(events));
-  window.dispatchEvent(new Event('icon-academy-events-updated'));
-}
+export const readEvents = eventsStore.read;
+export const subscribeEvents = eventsStore.subscribe;
+export const writeEvents = eventsStore.write;

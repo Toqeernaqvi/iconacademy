@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowDownToLine, BookOpen, FileText, GraduationCap } from 'lucide-react';
 import { academy } from './content/siteContent';
-import { readNotes } from './notesStore';
+import { readNotes, subscribeNotes } from './notesStore';
 
 const classes = [
   { id: '9', label: 'Class 9', year: 'Matric · Part I', notes: [] },
@@ -12,12 +12,7 @@ const classes = [
 
 export default function SpecialNotes() {
   const [notes, setNotes] = useState(readNotes);
-  useEffect(() => {
-    const refresh = () => setNotes(readNotes());
-    window.addEventListener('icon-academy-notes-updated', refresh);
-    window.addEventListener('storage', refresh);
-    return () => { window.removeEventListener('icon-academy-notes-updated', refresh); window.removeEventListener('storage', refresh); };
-  }, []);
+  useEffect(() => subscribeNotes(setNotes), []);
   return <main className="notes-page">
     <section className="notes-hero">
       <div className="section-wrap notes-hero-inner">

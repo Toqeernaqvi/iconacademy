@@ -1608,6 +1608,7 @@ html[data-theme='dark'] .fee-table tr.is-late td { background: #351a22; border-b
 .admin-topbar-title strong { overflow: hidden; color: #182236; font: 700 16px 'Space Grotesk', sans-serif; text-overflow: ellipsis; white-space: nowrap; }
 .admin-topbar-meta { display: flex; align-items: center; gap: 22px; }
 .admin-storage-status { display: flex; align-items: center; gap: 8px; color: #2d7655; }
+.admin-storage-status.is-offline { color: #b43a45; }
 .admin-storage-status > span, .admin-topbar-date { display: grid; gap: 2px; }
 .admin-storage-status strong, .admin-topbar-date strong { color: #45536a; font-size: 10px; }
 .admin-topbar-date { padding-left: 21px; border-left: 1px solid #e1e6ed; }
@@ -1658,6 +1659,7 @@ html[data-theme='dark'] .fee-table tr.is-late td { background: #351a22; border-b
 .admin-workspace .fee-table th:first-child, .admin-workspace .fee-table td:first-child { padding-left: 13px; }
 .admin-workspace .fee-table th:last-child, .admin-workspace .fee-table td:last-child { padding-right: 13px; }
 .admin-workspace .notes-admin-tools { margin-top: 18px; padding: 19px 22px; border-radius: 8px; }
+.admin-login-submit:disabled { opacity: .65; cursor: wait; transform: none; }
 
 html[data-theme='dark'] .admin-site-mode, html[data-theme='dark'] .admin-workspace { background: #0b111b; }
 html[data-theme='dark'] .admin-topbar { background: rgba(15,25,39,.97); border-color: #29384d; box-shadow: none; }

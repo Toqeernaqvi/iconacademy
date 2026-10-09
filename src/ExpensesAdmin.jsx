@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, Download, IndianRupee, Pencil, ReceiptText, RotateCcw, Search, Trash2, WalletCards, X } from 'lucide-react';
 import AdminShell from './AdminShell';
-import { expenseCategories, readExpenses, writeExpenses } from './expensesStore';
+import { expenseCategories, readExpenses, subscribeExpenses, writeExpenses } from './expensesStore';
 
 const today = new Date();
 const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
@@ -40,14 +40,17 @@ export default function ExpensesAdmin({ onLogout }) {
   const [query, setQuery] = useState('');
   const [message, setMessage] = useState('');
   const importRef = useRef(null);
+  useEffect(() => subscribeExpenses(setExpenses), []);
 
-  const commit = next => {
+  const commit = async next => {
+    const previous = expenses;
+    setExpenses(next);
     try {
-      writeExpenses(next);
-      setExpenses(next);
+      await writeExpenses(next);
       return true;
     } catch {
-      setMessage('Browser storage is full. Export a backup and remove old records, or add a backend later.');
+      setExpenses(previous);
+      setMessage('Expense Firebase par save nahi ho saka. Internet aur database rules check karein.');
       return false;
     }
   };
@@ -74,7 +77,7 @@ export default function ExpensesAdmin({ onLogout }) {
   }, { total: 0, paid: 0, remaining: 0, paidCount: 0, pending: 0, late: 0 }), [monthlyExpenses]);
 
   const reset = () => { setForm(blankExpense); setEditing(null); };
-  const submitExpense = event => {
+  const submitExpense = async event => {
     event.preventDefault();
     const title = form.title.trim();
     const amount = Number(form.amount);
@@ -82,8 +85,10 @@ export default function ExpensesAdmin({ onLogout }) {
     if (!amount || amount < 1) return setMessage('Please enter a valid expense amount.');
     const expense = { id: editing?.id || `expense-${Date.now()}`, title, category: form.category, amount, dueDate: form.dueDate, paidDate: form.paidDate, status: form.status, vendor: form.vendor.trim(), note: form.note.trim() };
     const next = editing ? expenses.map(item => item.id === editing.id ? expense : item) : [expense, ...expenses];
-    if (commit(next)) setMessage(editing ? 'Expense updated.' : 'Expense added.');
-    reset();
+    if (await commit(next)) {
+      setMessage(editing ? 'Expense updated in Firebase.' : 'Expense added to Firebase.');
+      reset();
+    }
   };
 
   const startEdit = expense => {
@@ -92,18 +97,18 @@ export default function ExpensesAdmin({ onLogout }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const removeExpense = expense => {
+  const removeExpense = async expense => {
     if (!window.confirm(`Delete ${expense.title}?`)) return;
-    if (commit(expenses.filter(item => item.id !== expense.id))) {
+    if (await commit(expenses.filter(item => item.id !== expense.id))) {
       if (editing?.id === expense.id) reset();
-      setMessage('Expense deleted from this browser.');
+      setMessage('Expense deleted from Firebase.');
     }
   };
 
   const updateExpense = (expense, patch) => {
     const nextItem = { ...expense, ...patch };
     const next = expenses.map(item => item.id === expense.id ? nextItem : item);
-    commit(next);
+    void commit(next);
   };
 
   const markPaid = expense => updateExpense(expense, { status: 'paid', paidDate: new Date().toISOString().slice(0, 10) });
@@ -111,11 +116,11 @@ export default function ExpensesAdmin({ onLogout }) {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(reader.result);
         if (!Array.isArray(parsed) || parsed.some(item => !item.id || !item.title || !item.category)) throw new Error();
-        if (commit(parsed)) setMessage(`Restored ${parsed.length} expenses from backup.`);
+        if (await commit(parsed)) setMessage(`Restored ${parsed.length} expenses to Firebase.`);
       } catch {
         setMessage('That expense backup file could not be read.');
       }
@@ -126,7 +131,7 @@ export default function ExpensesAdmin({ onLogout }) {
 
   return <AdminShell active="expenses" title="Expenses" onLogout={onLogout}><main className="notes-admin-page fees-admin-page expenses-admin-page"><div className="notes-admin-wrap">
     <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / EXPENSE MANAGEMENT</p><h1>Expenses</h1><p>Track monthly academy expenses like rent, staff salaries, petrol, bills and miscellaneous costs.</p></div><div className="notes-admin-count"><strong>{monthlyExpenses.length}</strong><span>{monthlyExpenses.length === 1 ? 'expense' : 'expenses'} this month</span></div></header>
-    <div className="notes-admin-notice"><strong>Manual file storage</strong><span>Expenses are saved in this browser only. Export/import JSON backups to keep a manual accounts file.</span></div>
+    <div className="notes-admin-notice"><strong>Firebase cloud storage</strong><span>Expenses save online and synchronize across signed-in devices. JSON export remains available as an extra backup.</span></div>
 
     <section className="fee-summary-grid" aria-label="Expense summary for selected month">
       <article><span><IndianRupee size={18} /></span><small>TOTAL</small><strong>Rs {summary.total.toLocaleString('en-PK')}</strong></article>

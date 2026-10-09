@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, Download, IndianRupee, Pencil, RotateCcw, Search, Trash2, UserPlus, UsersRound, WalletCards, X } from 'lucide-react';
 import AdminShell from './AdminShell';
-import { readTeachers, writeTeachers } from './teachersStore';
+import { readTeachers, subscribeTeachers, writeTeachers } from './teachersStore';
 
 const today = new Date();
 const currentMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
@@ -40,14 +40,17 @@ export default function TeachersAdmin({ onLogout }) {
   const [query, setQuery] = useState('');
   const [message, setMessage] = useState('');
   const importRef = useRef(null);
+  useEffect(() => subscribeTeachers(setTeachers), []);
 
-  const commit = next => {
+  const commit = async next => {
+    const previous = teachers;
+    setTeachers(next);
     try {
-      writeTeachers(next);
-      setTeachers(next);
+      await writeTeachers(next);
       return true;
     } catch {
-      setMessage('Browser storage is full. Export a backup and remove old records, or add a backend later.');
+      setTeachers(previous);
+      setMessage('Teacher record Firebase par save nahi ho saka. Internet aur database rules check karein.');
       return false;
     }
   };
@@ -71,7 +74,7 @@ export default function TeachersAdmin({ onLogout }) {
   }, { remaining: 0, paidAmount: 0, paid: 0, pending: 0, late: 0 }), [teachers, selectedMonth]);
 
   const reset = () => { setForm(blankTeacher); setEditing(null); };
-  const submitTeacher = event => {
+  const submitTeacher = async event => {
     event.preventDefault();
     const name = form.name.trim();
     const monthlySalary = Number(form.monthlySalary);
@@ -80,8 +83,10 @@ export default function TeachersAdmin({ onLogout }) {
     if (!monthlySalary || monthlySalary < 1) return setMessage('Please enter a valid monthly salary.');
     const teacher = { id: editing?.id || `teacher-${Date.now()}`, name, subject: form.subject.trim(), monthlySalary, dueDay, phone: form.phone.trim(), note: form.note.trim(), salaries: editing?.salaries || {} };
     const next = editing ? teachers.map(item => item.id === editing.id ? teacher : item) : [...teachers, teacher];
-    if (commit(next)) setMessage(editing ? 'Teacher updated.' : 'Teacher added to salary register.');
-    reset();
+    if (await commit(next)) {
+      setMessage(editing ? 'Teacher updated in Firebase.' : 'Teacher added to Firebase salary register.');
+      reset();
+    }
   };
 
   const startEdit = teacher => {
@@ -90,11 +95,11 @@ export default function TeachersAdmin({ onLogout }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const removeTeacher = teacher => {
+  const removeTeacher = async teacher => {
     if (!window.confirm(`Delete ${teacher.name} from salary register?`)) return;
-    if (commit(teachers.filter(item => item.id !== teacher.id))) {
+    if (await commit(teachers.filter(item => item.id !== teacher.id))) {
       if (editing?.id === teacher.id) reset();
-      setMessage('Teacher deleted from this browser.');
+      setMessage('Teacher deleted from Firebase.');
     }
   };
 
@@ -102,7 +107,7 @@ export default function TeachersAdmin({ onLogout }) {
     const salary = { ...getSalary(teacher, selectedMonth), ...patch };
     const salaries = { ...(teacher.salaries || {}), [selectedMonth]: salary };
     const next = teachers.map(item => item.id === teacher.id ? { ...teacher, salaries } : item);
-    commit(next);
+    void commit(next);
   };
 
   const markPaid = teacher => updateSalary(teacher, { status: 'paid', amountPaid: String(teacher.monthlySalary || ''), paidOn: new Date().toISOString().slice(0, 10) });
@@ -110,11 +115,11 @@ export default function TeachersAdmin({ onLogout }) {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(reader.result);
         if (!Array.isArray(parsed) || parsed.some(item => !item.id || !item.name)) throw new Error();
-        if (commit(parsed)) setMessage(`Restored ${parsed.length} teachers from backup.`);
+        if (await commit(parsed)) setMessage(`Restored ${parsed.length} teachers to Firebase.`);
       } catch {
         setMessage('That teacher backup file could not be read.');
       }
@@ -124,8 +129,8 @@ export default function TeachersAdmin({ onLogout }) {
   };
 
   return <AdminShell active="teachers" title="Teachers & Salary" onLogout={onLogout}><main className="notes-admin-page fees-admin-page"><div className="notes-admin-wrap">
-    <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / SALARY MANAGEMENT</p><h1>Teacher salaries</h1><p>Add teachers, select a month, and track paid, pending and late salary records.</p></div><div className="notes-admin-count"><strong>{teachers.length}</strong><span>{teachers.length === 1 ? 'teacher' : 'teachers'} in this browser</span></div></header>
-    <div className="notes-admin-notice"><strong>Manual file storage</strong><span>Teacher records are saved in this browser only. Export/import JSON backups to keep a manual salary file.</span></div>
+    <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / SALARY MANAGEMENT</p><h1>Teacher salaries</h1><p>Add teachers, select a month, and track paid, pending and late salary records.</p></div><div className="notes-admin-count"><strong>{teachers.length}</strong><span>{teachers.length === 1 ? 'teacher' : 'teachers'} in Firebase</span></div></header>
+    <div className="notes-admin-notice"><strong>Firebase cloud storage</strong><span>Teacher and salary records save online and synchronize across signed-in devices.</span></div>
 
     <section className="fee-summary-grid" aria-label="Salary summary for selected month">
       <article><span><IndianRupee size={18} /></span><small>REMAINING</small><strong>Rs {summary.remaining.toLocaleString('en-PK')}</strong></article>

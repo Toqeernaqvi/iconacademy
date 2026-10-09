@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowDownToLine, Download, FilePlus2, FileText, Pencil, RotateCcw, Trash2, Upload, X } from 'lucide-react';
 import AdminShell from './AdminShell';
-import { readNotes, writeNotes } from './notesStore';
+import { readNotes, subscribeNotes, writeNotes } from './notesStore';
 import { boardSubjectsByClass } from './content/boardSubjects';
+import { deleteFirebaseFile, uploadDataUrl, uploadNotePdf } from './firebaseFiles';
 
 const classOptions = [
   { id: '9', label: 'Class 9', year: 'Matric · Part I' },
@@ -38,10 +39,13 @@ export default function NotesAdmin({ onLogout }) {
   const [message, setMessage] = useState('');
   const importRef = useRef(null);
   const fileRef = useRef(null);
+  useEffect(() => subscribeNotes(setNotes), []);
 
-  const commit = next => {
-    try { writeNotes(next); setNotes(next); return true; }
-    catch { setMessage('Browser storage is full. Export a backup, remove large files, or use a backend for larger libraries.'); return false; }
+  const commit = async next => {
+    const previous = notes;
+    setNotes(next);
+    try { await writeNotes(next); return true; }
+    catch { setNotes(previous); setMessage('Note Firebase par save nahi ho saka. Internet aur Firebase rules check karein.'); return false; }
   };
   const onFile = event => setFile(event.target.files?.[0] || null);
   const subjectGroups = getSubjectGroups(form.classId);
@@ -49,7 +53,7 @@ export default function NotesAdmin({ onLogout }) {
   const selectedSubject = subjectOptions.includes(form.subject) ? form.subject : 'Other';
   const changeClass = classId => setForm({ ...form, classId, subject: defaultSubjectByClass[classId], customSubject: '' });
   const changeSubject = subject => setForm({ ...form, subject, customSubject: subject === 'Other' ? form.customSubject : '' });
-  const submit = event => {
+  const submit = async event => {
     event.preventDefault();
     const title = form.title.trim();
     if (!title) return setMessage('Please add a title.');
@@ -57,22 +61,22 @@ export default function NotesAdmin({ onLogout }) {
     if (!subject) return setMessage('Please choose or enter a subject.');
     if (!editing && !file) return setMessage('Please choose a PDF to upload.');
     if (file && file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) return setMessage('Please choose a PDF file.');
-    const url = file ? URL.createObjectURL(file) : editing?.url;
-    const note = { id: editing?.id || `note-${Date.now()}`, classId: form.classId, subject, title, fileName: file?.name || editing?.fileName || `${title}.pdf`, url, existingAsset: false, fileData: file ? undefined : editing?.fileData };
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        note.fileData = reader.result;
-        note.url = reader.result;
-        const saved = commit(editing ? notes.map(item => item.id === editing.id ? note : item) : [...notes, note]);
-        if (saved) setMessage(editing ? 'Note updated.' : 'PDF added to this browser. Export a backup to keep it.');
-      };
-      reader.onerror = () => setMessage('Could not read this PDF. Please try again.');
-      reader.readAsDataURL(file);
-    } else {
-      if (commit(notes.map(item => item.id === editing.id ? note : item))) setMessage('Note details updated.');
+    const id = editing?.id || `note-${Date.now()}`;
+    const oldUrl = editing?.url;
+    try {
+      const url = file ? await uploadNotePdf(file, id, file.name) : oldUrl;
+      const note = { id, classId: form.classId, subject, title, fileName: file?.name || editing?.fileName || `${title}.pdf`, url, existingAsset: file ? false : editing?.existingAsset || false };
+      const next = editing ? notes.map(item => item.id === editing.id ? note : item) : [...notes, note];
+      if (await commit(next)) {
+        if (file && oldUrl && oldUrl !== url) void deleteFirebaseFile(oldUrl);
+        setMessage(editing ? 'Note updated in Firebase.' : 'PDF uploaded to Firebase Storage.');
+        resetForm();
+      } else if (file) {
+        void deleteFirebaseFile(url);
+      }
+    } catch (error) {
+      setMessage(error.message || 'Could not upload this PDF to Firebase Storage.');
     }
-    resetForm();
   };
   const resetForm = () => { setForm(newForm); setFile(null); setEditing(null); if (fileRef.current) fileRef.current.value = ''; };
   const startEdit = note => {
@@ -81,44 +85,47 @@ export default function NotesAdmin({ onLogout }) {
     setForm({ classId: note.classId, subject: available.includes(note.subject) ? note.subject : 'Other', customSubject: available.includes(note.subject) ? '' : note.subject, title: note.title });
     setFile(null); window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const deleteNote = note => {
+  const deleteNote = async note => {
     if (!window.confirm(`Delete “${note.title}”?`)) return;
-    if (!commit(notes.filter(item => item.id !== note.id))) return;
+    if (!await commit(notes.filter(item => item.id !== note.id))) return;
     if (editing?.id === note.id) resetForm();
-    setMessage('Note deleted from this browser.');
+    void deleteFirebaseFile(note.url);
+    setMessage('Note deleted from Firebase.');
   };
   const exportBackup = () => saveJson('icon-academy-notes-backup.json', notes);
   const importBackup = event => {
     const backup = event.target.files?.[0];
     if (!backup) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(reader.result);
         if (!Array.isArray(parsed) || parsed.some(note => !note.id || !note.classId || !note.title)) throw new Error('Invalid backup');
-        if (commit(parsed)) setMessage(`Restored ${parsed.length} notes from backup.`);
+        const prepared = await Promise.all(parsed.map(async note => {
+          const source = note.fileData || note.url;
+          if (!source?.startsWith('data:')) { const { fileData, ...cleanNote } = note; return cleanNote; }
+          const url = await uploadDataUrl(source, `notes/${note.id}/restored-${Date.now()}-${note.fileName || 'note.pdf'}`, 'application/pdf');
+          const { fileData, ...cleanNote } = note;
+          return { ...cleanNote, url, existingAsset: false };
+        }));
+        if (await commit(prepared)) setMessage(`Restored ${prepared.length} notes to Firebase.`);
       } catch { setMessage('That backup file could not be read.'); }
       event.target.value = '';
     };
     reader.readAsText(backup);
   };
   const downloadNote = note => {
-    const link = document.createElement('a'); link.href = note.fileData || note.url; link.download = note.fileName; link.target = '_blank'; link.rel = 'noreferrer'; link.click();
+    const link = document.createElement('a'); link.href = note.url; link.download = note.fileName; link.target = '_blank'; link.rel = 'noreferrer'; link.click();
   };
-  const exportWebsiteFiles = async () => {
-    const manifest = notes.map(({ id, classId, subject, title, fileName, existingAsset }) => ({ id, classId, subject, title, fileName, url: existingAsset ? `/notes/${encodeURIComponent(fileName)}` : `/notes/${encodeURIComponent(fileName)}` }));
-    saveJson('notes-manifest.json', manifest);
-    for (const note of notes.filter(item => item.fileData)) {
-      const link = document.createElement('a'); link.href = note.fileData; link.download = note.fileName; link.click();
-      await new Promise(resolve => setTimeout(resolve, 180));
-    }
-    setMessage('Downloaded manifest and note files. Put PDFs in public/notes and replace src/content/notes.json, then redeploy to publish.');
+  const exportManifest = () => {
+    saveJson('icon-academy-notes-manifest.json', notes);
+    setMessage('Downloaded the current Firebase notes manifest.');
   };
 
   return <AdminShell active="notes" title="Study Notes" onLogout={onLogout}><main className="notes-admin-page">
     <div className="notes-admin-wrap">
-      <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Notes manager</h1><p>Organize study resources by class, subject and title.</p></div><div className="notes-admin-count"><strong>{notes.length}</strong><span>{notes.length === 1 ? 'note' : 'notes'} in this browser</span></div></header>
-      <div className="notes-admin-notice"><strong>Browser-only storage</strong><span>Changes stay in this browser. Export backups regularly. To publish updates, export website files, add the PDFs under <code>public/notes</code> and redeploy.</span></div>
+      <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / CONTENT MANAGEMENT</p><h1>Notes manager</h1><p>Organize study resources by class, subject and title.</p></div><div className="notes-admin-count"><strong>{notes.length}</strong><span>{notes.length === 1 ? 'note' : 'notes'} in Firebase</span></div></header>
+      <div className="notes-admin-notice"><strong>Live Firebase publishing</strong><span>Note details save in Realtime Database and PDFs upload to Firebase Storage. Public notes update automatically.</span></div>
       <div className="notes-admin-grid">
         <section className="notes-admin-panel">
           <p className="course-eyebrow">{editing ? 'UPDATE RESOURCE' : 'ADD RESOURCE'}</p><h2>{editing ? 'Edit this note' : 'Upload a PDF'}</h2>
@@ -140,7 +147,7 @@ export default function NotesAdmin({ onLogout }) {
           })}</div> : <div className="notes-admin-empty"><FileText size={21} /><p>No notes uploaded yet. Add a PDF to get started.</p></div>}
         </section>
       </div>
-      <section className="notes-admin-tools"><div><h2>Backup & publish</h2><p>Keep a copy of your browser library or export files for the website.</p></div><div className="notes-admin-tool-buttons"><button type="button" onClick={exportBackup}><Download size={16} />Export backup</button><button type="button" onClick={() => importRef.current?.click()}><RotateCcw size={16} />Restore backup</button><button type="button" onClick={exportWebsiteFiles}><ArrowDownToLine size={16} />Export for website</button><input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importBackup} /></div></section>
+      <section className="notes-admin-tools"><div><h2>Firebase backups</h2><p>Keep a JSON copy of the cloud library or restore an earlier backup.</p></div><div className="notes-admin-tool-buttons"><button type="button" onClick={exportBackup}><Download size={16} />Export backup</button><button type="button" onClick={() => importRef.current?.click()}><RotateCcw size={16} />Restore backup</button><button type="button" onClick={exportManifest}><ArrowDownToLine size={16} />Export manifest</button><input ref={importRef} type="file" accept="application/json,.json" hidden onChange={importBackup} /></div></section>
     </div>
   </main></AdminShell>;
 }

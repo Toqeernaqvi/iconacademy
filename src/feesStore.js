@@ -1,6 +1,8 @@
 import feesManifest from './content/fees.json';
+import { createRealtimeCollection } from './firebaseStore';
 
 export const feesStorageKey = 'icon-academy-fees-v1';
+export const feesFirebasePath = 'academy/admin/fees';
 export const feeClassOptions = [
   { id: '9', label: 'Class 9' },
   { id: '10', label: 'Class 10' },
@@ -12,17 +14,12 @@ export const feeClassOptions = [
 
 export const initialFeeStudents = feesManifest;
 
-export function readFeeStudents() {
-  if (typeof window === 'undefined') return initialFeeStudents;
-  try {
-    const stored = window.localStorage.getItem(feesStorageKey);
-    return stored ? JSON.parse(stored) : initialFeeStudents;
-  } catch {
-    return initialFeeStudents;
-  }
-}
+const feesStore = createRealtimeCollection({
+  path: feesFirebasePath,
+  eventName: 'icon-academy-fees-updated',
+  initialData: initialFeeStudents,
+});
 
-export function writeFeeStudents(students) {
-  window.localStorage.setItem(feesStorageKey, JSON.stringify(students));
-  window.dispatchEvent(new Event('icon-academy-fees-updated'));
-}
+export const readFeeStudents = feesStore.read;
+export const subscribeFeeStudents = feesStore.subscribe;
+export const writeFeeStudents = feesStore.write;

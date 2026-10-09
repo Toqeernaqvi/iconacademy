@@ -1,7 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CheckCircle2, Download, IndianRupee, Pencil, RotateCcw, Search, Trash2, UserPlus, WalletCards, X } from 'lucide-react';
 import AdminShell from './AdminShell';
-import { feeClassOptions, readFeeStudents, writeFeeStudents } from './feesStore';
+import { feeClassOptions, readFeeStudents, subscribeFeeStudents, writeFeeStudents } from './feesStore';
 
 const blankStudent = { name: '', classId: '9', monthlyFee: '', dueDay: '10', phone: '', note: '' };
 const today = new Date();
@@ -45,14 +45,17 @@ export default function FeesAdmin({ onLogout }) {
   const [query, setQuery] = useState('');
   const [message, setMessage] = useState('');
   const importRef = useRef(null);
+  useEffect(() => subscribeFeeStudents(setStudents), []);
 
-  const commit = next => {
+  const commit = async next => {
+    const previous = students;
+    setStudents(next);
     try {
-      writeFeeStudents(next);
-      setStudents(next);
+      await writeFeeStudents(next);
       return true;
     } catch {
-      setMessage('Browser storage is full. Export a backup and remove old records, or add a backend later.');
+      setStudents(previous);
+      setMessage('Fee record Firebase par save nahi ho saka. Internet aur database rules check karein.');
       return false;
     }
   };
@@ -77,7 +80,7 @@ export default function FeesAdmin({ onLogout }) {
   }, { expected: 0, received: 0, paid: 0, pending: 0, late: 0 }), [students, selectedMonth]);
 
   const reset = () => { setForm(blankStudent); setEditing(null); };
-  const submitStudent = event => {
+  const submitStudent = async event => {
     event.preventDefault();
     const name = form.name.trim();
     const monthlyFee = Number(form.monthlyFee);
@@ -86,8 +89,10 @@ export default function FeesAdmin({ onLogout }) {
     if (!monthlyFee || monthlyFee < 1) return setMessage('Please enter a valid monthly fee.');
     const student = { id: editing?.id || `student-${Date.now()}`, name, classId: form.classId, monthlyFee, dueDay, phone: form.phone.trim(), note: form.note.trim(), payments: editing?.payments || {} };
     const next = editing ? students.map(item => item.id === editing.id ? student : item) : [...students, student];
-    if (commit(next)) setMessage(editing ? 'Student updated.' : 'Student added to fee register.');
-    reset();
+    if (await commit(next)) {
+      setMessage(editing ? 'Student updated in Firebase.' : 'Student added to Firebase fee register.');
+      reset();
+    }
   };
 
   const startEdit = student => {
@@ -96,11 +101,11 @@ export default function FeesAdmin({ onLogout }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const removeStudent = student => {
+  const removeStudent = async student => {
     if (!window.confirm(`Delete ${student.name} from fee register?`)) return;
-    if (commit(students.filter(item => item.id !== student.id))) {
+    if (await commit(students.filter(item => item.id !== student.id))) {
       if (editing?.id === student.id) reset();
-      setMessage('Student deleted from this browser.');
+      setMessage('Student deleted from Firebase.');
     }
   };
 
@@ -108,7 +113,7 @@ export default function FeesAdmin({ onLogout }) {
     const payment = { ...getPayment(student, selectedMonth), ...patch };
     const payments = { ...(student.payments || {}), [selectedMonth]: payment };
     const next = students.map(item => item.id === student.id ? { ...student, payments } : item);
-    commit(next);
+    void commit(next);
   };
 
   const markPaid = student => updatePayment(student, { status: 'paid', amountPaid: String(student.monthlyFee || ''), paidOn: new Date().toISOString().slice(0, 10) });
@@ -116,11 +121,11 @@ export default function FeesAdmin({ onLogout }) {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(reader.result);
         if (!Array.isArray(parsed) || parsed.some(item => !item.id || !item.name || !item.classId)) throw new Error();
-        if (commit(parsed)) setMessage(`Restored ${parsed.length} students from backup.`);
+        if (await commit(parsed)) setMessage(`Restored ${parsed.length} students to Firebase.`);
       } catch {
         setMessage('That fee backup file could not be read.');
       }
@@ -130,8 +135,8 @@ export default function FeesAdmin({ onLogout }) {
   };
 
   return <AdminShell active="fees" title="Student Fees" onLogout={onLogout}><main className="notes-admin-page fees-admin-page"><div className="notes-admin-wrap">
-    <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / FEE MANAGEMENT</p><h1>Fee register</h1><p>Add students class-wise, select a month, and track paid, pending and late fees.</p></div><div className="notes-admin-count"><strong>{students.length}</strong><span>{students.length === 1 ? 'student' : 'students'} in this browser</span></div></header>
-    <div className="notes-admin-notice"><strong>Manual file storage</strong><span>Changes are saved in this browser only. Use export/import to keep a JSON backup file for your academy records.</span></div>
+    <header className="notes-admin-heading"><div><p className="course-eyebrow">ICON ACADEMY / FEE MANAGEMENT</p><h1>Fee register</h1><p>Add students class-wise, select a month, and track paid, pending and late fees.</p></div><div className="notes-admin-count"><strong>{students.length}</strong><span>{students.length === 1 ? 'student' : 'students'} in Firebase</span></div></header>
+    <div className="notes-admin-notice"><strong>Firebase cloud storage</strong><span>Changes save online and stay synchronized across signed-in devices. JSON export remains available as an extra backup.</span></div>
 
     <section className="fee-summary-grid" aria-label="Fee summary for selected month">
       <article><span><IndianRupee size={18} /></span><small>REMAINING</small><strong>Rs {summary.expected.toLocaleString('en-PK')}</strong></article>

@@ -1,6 +1,8 @@
 import expensesManifest from './content/expenses.json';
+import { createRealtimeCollection } from './firebaseStore';
 
 export const expensesStorageKey = 'icon-academy-expenses-v1';
+export const expensesFirebasePath = 'academy/admin/expenses';
 export const expenseCategories = [
   'Building rent',
   'Guard salary',
@@ -13,17 +15,12 @@ export const expenseCategories = [
 ];
 export const initialExpenses = expensesManifest;
 
-export function readExpenses() {
-  if (typeof window === 'undefined') return initialExpenses;
-  try {
-    const stored = window.localStorage.getItem(expensesStorageKey);
-    return stored ? JSON.parse(stored) : initialExpenses;
-  } catch {
-    return initialExpenses;
-  }
-}
+const expensesStore = createRealtimeCollection({
+  path: expensesFirebasePath,
+  eventName: 'icon-academy-expenses-updated',
+  initialData: initialExpenses,
+});
 
-export function writeExpenses(expenses) {
-  window.localStorage.setItem(expensesStorageKey, JSON.stringify(expenses));
-  window.dispatchEvent(new Event('icon-academy-expenses-updated'));
-}
+export const readExpenses = expensesStore.read;
+export const subscribeExpenses = expensesStore.subscribe;
+export const writeExpenses = expensesStore.write;

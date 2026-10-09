@@ -3,8 +3,9 @@ import {
   ArrowUpRight,
   BookOpen,
   CalendarDays,
+  Cloud,
+  CloudOff,
   Globe2,
-  HardDrive,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -13,11 +14,12 @@ import {
   WalletCards,
   X,
 } from 'lucide-react';
-import { readEvents } from './eventsStore';
-import { readExpenses } from './expensesStore';
-import { readFeeStudents } from './feesStore';
-import { readNotes } from './notesStore';
-import { readTeachers } from './teachersStore';
+import { readEvents, subscribeEvents } from './eventsStore';
+import { readExpenses, subscribeExpenses } from './expensesStore';
+import { readFeeStudents, subscribeFeeStudents } from './feesStore';
+import { readNotes, subscribeNotes } from './notesStore';
+import { readTeachers, subscribeTeachers } from './teachersStore';
+import { subscribeFirebaseConnection } from './firebaseStore';
 
 const navigation = [
   {
@@ -56,20 +58,21 @@ function readCounts() {
 export default function AdminShell({ active, title, onLogout, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [counts, setCounts] = useState(readCounts);
+  const [firebaseConnected, setFirebaseConnected] = useState(null);
 
   useEffect(() => {
     const refresh = () => setCounts(readCounts());
-    const events = [
-      'icon-academy-events-updated',
-      'icon-academy-expenses-updated',
-      'icon-academy-fees-updated',
-      'icon-academy-notes-updated',
-      'icon-academy-teachers-updated',
-      'storage',
+    const subscriptions = [
+      subscribeEvents(refresh),
+      subscribeExpenses(refresh),
+      subscribeFeeStudents(refresh),
+      subscribeNotes(refresh),
+      subscribeTeachers(refresh),
     ];
-    events.forEach(eventName => window.addEventListener(eventName, refresh));
-    return () => events.forEach(eventName => window.removeEventListener(eventName, refresh));
+    return () => subscriptions.forEach(unsubscribe => unsubscribe());
   }, []);
+
+  useEffect(() => subscribeFirebaseConnection(setFirebaseConnected), []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -142,7 +145,7 @@ export default function AdminShell({ active, title, onLogout, children }) {
           <div><small>ADMIN PORTAL</small><strong>{title}</strong></div>
         </div>
         <div className="admin-topbar-meta">
-          <span className="admin-storage-status"><HardDrive size={15} /><span><small>STORAGE</small><strong>Local browser</strong></span></span>
+          <span className={`admin-storage-status${firebaseConnected === false ? ' is-offline' : ''}`}>{firebaseConnected === false ? <CloudOff size={15} /> : <Cloud size={15} />}<span><small>DATABASE</small><strong>{firebaseConnected === null ? 'Connecting...' : firebaseConnected ? 'Firebase Cloud' : 'Offline'}</strong></span></span>
           <span className="admin-topbar-date"><small>TODAY</small><strong>{today}</strong></span>
         </div>
       </header>

@@ -1,0 +1,22 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "academy": {
+      "public": {
+        "events": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'pOGN5R17jRXBAxUHHWcb2kTqn2w1'"
+        },
+        "notes": {
+          ".read": true,
+          ".write": "auth != null && auth.uid === 'pOGN5R17jRXBAxUHHWcb2kTqn2w1'"
+        }
+      },
+      "admin": {
+        ".read": "auth != null && auth.uid === 'pOGN5R17jRXBAxUHHWcb2kTqn2w1'",
+        ".write": "auth != null && auth.uid === 'pOGN5R17jRXBAxUHHWcb2kTqn2w1'"
+      }
+    }
+  }
+}
