@@ -41,8 +41,8 @@ export default function AdminGate({ children }) {
       } catch (error) {
         await signOut(firebaseAuth);
         setMessage(error?.code === 'PERMISSION_DENIED' || error?.code === 'permission-denied'
-          ? 'Firebase Database/Storage rules publish nahi hui. Rules deploy karke dobara login karein.'
-          : 'Firebase data initialize nahi ho saka. Database aur Storage rules check karein.');
+          ? 'Firebase Realtime Database rules publish nahi hui. Rules deploy karke dobara login karein.'
+          : 'Firebase data initialize nahi ho saka. Realtime Database aur internet connection check karein.');
       } finally {
         setChecking(false);
       }
